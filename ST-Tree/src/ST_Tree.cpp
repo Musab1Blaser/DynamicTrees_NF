@@ -5,7 +5,10 @@ ST_Tree::ST_Tree(std::map<int, int>& treePar)
 {
     for (const auto &[u, v] : treePar)
     {
-        vertices[u] = new ST_Node(true, u);
+        if (!vertices.count(u))
+            vertices[u] = new ST_Node(true, u);
+        if (!vertices.count(v))
+            vertices[v] = new ST_Node(true, v);
         // dparent[u] = v; // remove - instead link trees/vertices
     }
 }
@@ -35,7 +38,7 @@ void ST_Tree::construct(ST_Node* v, ST_Node* w, double x) // v is to the left i.
     u->bhead = v->bhead;
     u->bright = w;
     w->bparent = u; 
-    u->btail = v->btail;
+    u->btail = w->btail;
 }
 
 std::tuple<ST_Node*, ST_Node*, double> ST_Tree::destroy (ST_Node* u)
@@ -51,4 +54,63 @@ ST_Node* ST_Tree::concatenate(ST_Node* p, ST_Node* q, double x)
     construct(p, q, x);
     return p->bparent;
 }
+
+void ST_Tree::rotate(ST_Node* v)
+{
+    if (v->bparent)
+    {
+        ST_Node* u = v->bparent;
+        if (u->bright == v) // rotate left
+        {
+            // give v's left child
+            u->bright = v->bleft;
+            u->bright->bparent = u;
+
+            // update v's parent
+            v->bparent = u->bparent;
+
+            // make u left child
+            v->bleft = u;
+            u->bparent = v;
+
+        }
+        else
+        {
+            // give v's right child
+            u->bleft = v->bright;
+            u->bleft->bparent = u;
+
+            // update v's parent
+            v->bparent = u->bparent;
+            
+            // make u right child
+            v->bright = u;
+            u->bparent = v;
+
+
+        }
+
+        // update head and tail
+        u->bhead = u->bleft->bhead;
+        u->bhead = u->bright->btail;
+
+        v->bhead = v->bleft->bhead;
+        v->bhead = v->bright->btail;
+    }
+}
+
+std::tuple<ST_Node*, ST_Node*, double, double> ST_Tree::split(int v)
+{
+    ST_Node* vNode = vertices[v];
+    while (vNode->bparent)
+    {
+        ST_Node* cur = vNode->bparent;
+        while (cur->bparent)
+            rotate(cur);
+        destroy(cur);
+    }
+}
+
+
+
 

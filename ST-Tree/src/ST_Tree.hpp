@@ -6,14 +6,14 @@ struct ST_Node // Nodes - can represent vertices or edges. Their corresponding t
     bool external;
     int vertex_id;
     ST_Node* bparent;
-    ST_Node(bool ext, int vert) : external{ext}, vertex_id{vert}, bparent{nullptr} {}; // External node/vertex constructor
+    ST_Node *bhead, *bleft, *bright, *btail;
+    ST_Node(bool ext, int vert) : external{ext}, vertex_id{vert}, bparent{nullptr}, bhead{this}, bleft{this}, bright{this}, btail{this} {}; // External node/vertex constructor
 
     bool reversed;
     int netmin;
     int netcost;
-    ST_Node *bhead, *bleft, *bright, *btail;
     // Internal node/edge constructor
-    ST_Node (bool ext, ST_Node* par, bool rev, int netmi, int netcst) : external{ext}, bparent{par}, reversed{rev}, netmin{netmi}, netcost{netcst} {};
+    ST_Node (bool ext, ST_Node* par, bool rev, int netmi, int netcst) : external{ext}, vertex_id{-1}, bparent{par}, reversed{rev}, netmin{netmi}, netcost{netcst} {};
     // ~ST_Node();  // To implement
 };
 
@@ -47,12 +47,13 @@ class ST_Tree
         void construct(ST_Node* v, ST_Node* w, double x);  
         std::tuple<ST_Node*, ST_Node*, double> destroy (ST_Node* u);  // To implement
         
+        void rotate(ST_Node* v);  // To implement
         // void rotateleft(ST_Node* v);  // To implement
         // void rotateright(ST_Node* v);  // To implement
 
         // concatenate + split
         ST_Node* concatenate(ST_Node* p, ST_Node* q, double x);
-        // std::tuple<ST_Node*, ST_Node*, double x, double y> split(int v);
+        std::tuple<ST_Node*, ST_Node*, double, double> split(int v);
 
 
         // ~ST_Tree(); // To implement
