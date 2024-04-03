@@ -1,0 +1,270 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{algorithm,algpseudocode,float}
+\usepackage{framed, color}
+
+\definecolor{shadecolor}{rgb}{0.8, 0.8, 0.8}
+
+\DeclareMathOperator*{\E}{\mathbb{E}}
+\let\Pr\relax
+\DeclareMathOperator*{\Pr}{\mathbb{P}}
+
+\newcommand{\eps}{\varepsilon}
+\newcommand{\inprod}[1]{\left\langle #1 \right\rangle}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\eqdef}{\mathbin{\stackrel{\rm def}{=}}}
+
+\newcommand {\onevec}{\mathbf{e}}
+
+\newtheorem{lemma}{Lemma}
+\newtheorem{defn}{Definition}
+\newtheorem{claim}{Claim}
+
+\newcommand{\handout}[5]{
+	\noindent
+	\begin{center}
+		\framebox{
+			\vbox{
+				\hbox to 5.78in { {\bf CS 224: Advanced Algorithms } \hfill #2 }
+				\vspace{4mm}
+				\hbox to 5.78in { {\Large \hfill #5  \hfill} }
+				\vspace{2mm}
+				\hbox to 5.78in { {\em #3 \hfill #4} }
+			}
+		}
+	\end{center}
+	\vspace*{4mm}
+}
+
+\newcommand{\lecture}[4]{\handout{#1}{#2}{#3}{Scribe: #4}{Lecture #1}}
+
+\newtheorem{theorem}{Theorem}[section]
+% 1-inch margins, from fullpage.sty by H.Partl, Version 2, Dec. 15, 1988.
+\topmargin 0pt
+\advance \topmargin by -\headheight
+\advance \topmargin by -\headsep
+\textheight 8.9in
+\oddsidemargin 0pt
+\evensidemargin \oddsidemargin
+\marginparwidth 0.5in
+\textwidth 6.5in
+
+\let\O\relax
+\newcommand{\O}{\mathcal{O}}
+\newcommand{\C}{\mathcal{C}}
+\newcommand{\K}{\mathcal{K}}
+\newcommand{\bigO}{\text{O}}
+\newcommand{\OPT}{\textsf{OPT}}
+
+\newcommand{\Rn}{\mathbb{R}^n}
+\newcommand{\arr}{\mathbb{R}}
+
+\parindent 0in
+\parskip 1.5ex
+
+\begin{document}
+	
+\lecture{26 --- April 18, 2017}{Spring 2017}{Prof.\ Jelani Nelson}{Stefan Gramatovici}
+\section{Overview}
+
+
+Today we will use link-cut trees to give a $O(mn\log n)$ solution to the max flow with general capacities. In our analysis we will actually show an amortized time complexity $O(m\log^2 n)$ per blocking flow leading to an overall complexity of $O(mn\log^2 n)$ for max flow. Using a slightly improved analysis, the exact same algorithm achieves a complexity of $O(mn\log^2 n)$, but we will not prove this in class.
+
+\section{Link Cut Trees}
+
+Remember from last time that when using DFS to solve max flow we need to remember paths that were already explored but still have positive capacity. It is easy to see that such paths form a forest.
+
+We will remember such paths using link cut trees, due to Sleator and Tarjan \cite{st}. Link cut trees will maintain a collection of vertex-disjoint rooted trees on n vertices subject to:
+
+\begin{enumerate}
+	\item $fintRoot(v)$: return root of the tree containing $v$
+	\item $makeTree(v)$: create a singleton tree consisting of $v$
+	\item $link(v,w,x)$(assumes $v$ is root of its tree): Set $v$ parent in the tree to $w$ with capacity $x$. 
+	\item $cut(v)$: removes edge from $v$ to its parent
+	\item $findMin(v)$: return edge on root-to-$v$ path of min capacity. Breaks ties by returning the edge closer to root.
+	\item $subtract(v,x)$: subtract $x$ from the capacity of all edges on $v$-root path.
+\end{enumerate}
+
+\section{Blocking Flow}
+
+Figure~\ref{fig:blocking} is a pseudocode implementation to find a blocking flow, using Link Cut trees in a black box way. 
+
+\begin{algorithm}[H] 
+  \caption{Algorithm for finding a blocking flow. $L$ denotes the level graph with source $s$ and sink $t$, and $V$, $E$ are its vertices and edges, respectively. $u(e)$ is the capacity of edge $e$.} \label{fig:blocking}
+  \begin{algorithmic}[1]
+    \Procedure{BlockingFlow}{$L$}
+    \State Clone $L'$ to be equal to $L$
+    \For {$v\in V$}
+      \State $makeTree(v)$
+    \EndFor
+    \While{True}
+      \State $v\leftarrow findRoot(s)$
+      \If{$v=t$}
+        \Statex\ \ \ \ \ \ \ \ \ \ \ \ \ \ // Add flow along the path from $s$ to $t$
+        \Statex\ \ \ \ \ \ \ \ \ \ \ \ \ \ // $(z, parent(z))$ is the min capacity edge of capacity $x$
+        \State $(z,x)\leftarrow findMin(s)$
+        \State $subtract(s, x)$
+        \While{True}
+        \Statex \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ // remove all edges on this path with capacity $0$
+        \Statex \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ // if $s$ is a singleton tree, assume $y$ is null
+        \State $(a,y)\leftarrow findMin(s)$
+        \If{$y=0$}
+          \State $cut(a)$
+          \State delete edge $(a, parent(a))$ from $L$
+        \Else
+          \State \textbf{break}
+        \EndIf
+        \EndWhile
+      \Else
+        \Statex\ \ \ \ \ \ \ \ \ \ \ \ \ \ // try to advance
+        \If{$v$ has an outgoing edge $(v,w)\in E$}
+          \State $link(v, w, u((v,w)))$
+        \Else
+          \If{$v=s$}
+            \Statex \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ // we're done: no more possibilities to explore
+            \State \textbf{break}
+          \Else
+            \Statex \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ // (aggressive) retreat
+            \For{each child $c$ of $v$}
+              \State $cut(c)$
+              \State delete edge $(c, v)$ from graph $L$
+            \EndFor
+          \EndIf
+        \EndIf
+      \EndIf
+    \EndWhile
+    \State $f\leftarrow 0$\Comment{the blocking flow to be returned}
+    \For{$e\in E$}
+      \State $f_e\leftarrow u_{L'}(e) - u_L(e)$
+    \EndFor
+    \State \Return $f$ 
+    \EndProcedure
+  \end{algorithmic}
+\end{algorithm}
+
+\section{Implementation of Link Cut Tree}
+
+We focus on one tree.
+\begin{defn} 
+For node v, its preferred child is 
+\begin{itemize}
+	\item v itself, if $v$ was most recently accessed node in its subtree
+	\item otherwise, it'sthe child leading to the most recently accessed descendant of $v$
+\end{itemize}
+\end{defn}
+
+\begin{defn}
+	$(u,v)$ is a preferred edge if $u$ is the preferred child of $v$.
+\end{defn} 
+\subsection{Preferred path representation}
+
+Consider some tree that we are trying to represent (from now on referred to as the {\bf represented tree}). Note that preferred edges form continuous disjoint paths that cover all points of our tree. Collapsing the chains into single point and keeping the incidence of the initial tree, we obtain another tree called the {\bf preferred path decomposition}. This secondary tree will  be stored in a link cut tree. 
+
+Each preferred path will be sored as an splay tree keyed on depth in the represented tree. A tree  storing a preferred path will be called {\bf aux tree}. The root of the aux tree will have a pointer to the vertex in the represented tree that starts the path(has smallest depth in the represented tree).
+
+We now need to implement access(v): make root-to-v path preferred so that the aux tree containing v becomes root(in the tree of aux trees) and $v$ becomes the root vertex of this root tree. We will do the following operations:
+
+\subsection{access(v)}
+\begin{itemize}
+	\item $splay(v)$ (in the aux tree containing $v$)
+	\item $v.right.pathparent=v$ 
+	\item $v.right.auxparent=none$ 
+	\item $v.right=none$
+	until $v.pathparent=none$:
+	\begin{itemize}
+		\item $w=v.pathparent$
+		\item $splay(w)$
+		\item $w.right.pathparent=w$
+		\item $w.right.auxparent=none$
+		\item $w.right=v$
+		\item $v.auxparent=w$
+		\item $splay(v)$
+	\end{itemize}	
+\end{itemize}
+
+Once we have $access(v)$, the other operations needed for a link cut tree can be implemented as follows:
+\subsection{findRoot(v)}
+\begin{itemize}
+	\item $access(v)$
+	\item return the min keyed element of $v's$ aux tree, then access it(this maintains good amortized time due to the properties of splay trees.)
+\end{itemize}
+
+
+\subsection{findMin(v)}
+Note: each splay tree will be an augmented splay tree with capacity information that allows additional $\log n$ queries regarding the values(not keyes) stored in a tree such as findMinValue. 
+\begin{itemize}
+	\item $access(v)$
+	\item return the min capacity value in $v$'s tree(every node stores min capacity in its subtree.\footnote{the capacity of a node is the capacity of the edge to its parent})
+\end{itemize}
+
+\subsection{cut(v)}
+\begin{itemize}
+	\item $access(v)$
+	\item $v.left.pathparent=none$
+	\item $v.left.auxparent=none$
+	\item $v.left=none$
+\end{itemize}
+
+\subsection{link(v,w,x)}
+\begin{itemize}
+	\item $access(v)$
+	\item $access(w)$
+	\item $v.auxleft=w$
+	\item $w.auxparent=v$
+\end{itemize}
+
+\section{Analysis}
+
+Let $m,n$ be the number of edges and vertices. Running time of blocking flow is $O(m\cdot (\text{ sum of operations })+ n\cdot t_{makeTree} )$. Thus we will need to analyze the amortized complexity of all the operations above.
+
+First note that in all implementations above the only operation that we need to analyze with respect to time cost is $access(v)$. The other operations consist of $access(v)$ and some constant time. 
+
+\begin{claim}
+Over the course of $T$ accesses, total runtime is $O((T+PCC)\cdot \log n)$, where $PCC$ is the number of preferred child changes.
+\end{claim}
+
+\noindent{\bf Proof of Claim.}. Note that in an access, the most expensive operations are splays. We make $O(PCC)$ splays and $n$ accesses. Based on the properties of splay trees, this leads to a time complexity of $O(\log n(T+PCC))$.\footnote{to get $O(m\log n)$ amortized time per blocking flow we would need to show that total runtime $O(T\log n+PCC)$. This can be achieved by a different weight analysis of the contained splay tree}
+
+We are left to bound PCC by $O(n+T\log n)$. We will use heavy-light decomposition.
+
+\subsection{Heavy-light decomposition}
+
+Consider the initial tree(represented tree). Let $s(v)$ be the size of the subtree rooted at $v$. We will label the edges as follows:
+
+\begin{itemize}
+	\item $(u,v)$ is heavy if $s(u)>\frac{1}{2}s(v)$
+	\item $(u,v)$ is light otherwise
+	
+\end{itemize}
+
+When a preferred child changes from $(v,u)$ to $(v,w)$, we will say that $(v,u)$ is a preferred edge destruction and $(v,w)$ is a preferred child creation.
+
+\smallskip
+
+\noindent{\bf Observation.} Every edge is the represented tree can be of four types:
+
+$$\{\text{light, heavy}\} \times \{\text{preferred, not preferred}\}$$
+
+\noindent{\bf Lemma.} $PCC\leq 2LPCC+n+T$, where $LPCC$ stands for the number of light preferred child creations.
+
+\noindent{\bf Proof.} Suppose $(u,v)$ is a PCC. If $(u,v)$ is light, it counts for both sides of the inequality so there is nothing to prove. If $(u,v)$ is heavy, consider two sub cases
+\begin{itemize}
+	\item old  pref. child of $v$ was null. This case is somewhat unlikely and it can only happen if the query is the first access in $v$'s subtree (happens at most $n$ times), or if last access in $v$'s subtree was to $v$. We charge this to the last access on $v$, giving us the $m+n$ term on the RHS
+	\item old pref. child of $v$ is not null. As we create a light preferred child edge, this means that the previous preferred edge of $w$ was light(as we can only have only light and one heavy edge per vertex). We can charge this to the creation of old preferred light edge, giving us the factor of $2LPCC$ in the bound
+\end{itemize}
+
+We are left to bound LPCC. Let's see how much each operation contributes to $LPCC$. We claim that all operations contribute to LPCC with at most $O(\log n)$. Again, we only consider $access(v)$.  For the other operations the proof is follows shortly.
+
+Note that any path there are at most $\log n$ light edges. This is due to the fact that as we go down the path, we leave more than half of the points in trees outside of the path that hang from the heavy edge. Thus any access will create at most $\log n$ LPCC.
+
+Now using the lemma, we obtain $PCC\leq O(T\log n+n)$, giving us a final bound of $O(T\log^2n+n\log n)$  across $T$ operations. As $T\leq m$, this gives us a bound of $O(m\log^2 n+n\log n)$ for our algorithm.
+	
+
+\begin{thebibliography}{1}
+	\bibitem{st}
+	Daniel D. Sleator and Robert Endre Tarjan.
+	\textit{A Data Structure for Dynamic Trees}.
+	Journal of Computer and System Sciences, Vol. 26, No. 3, 1983.
+\end{thebibliography}
+	
+\end{document}

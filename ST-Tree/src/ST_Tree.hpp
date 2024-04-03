@@ -1,23 +1,25 @@
 #pragma once
 
 #include <map>
+struct ST_Node // Nodes - can represent vertices or edges. Their corresponding tree represents a path. Single Node trees represent trivial paths.
+{
+    bool external;
+    int vertex_id;
+    ST_Node* bparent;
+    ST_Node(bool ext, int vert) : external{ext}, vertex_id{vert}, bparent{nullptr} {}; // External node/vertex constructor
+
+    bool reversed;
+    int netmin;
+    int netcost;
+    ST_Node *bhead, *bleft, *bright, *btail;
+    // Internal node/edge constructor
+    ST_Node (bool ext, ST_Node* par, bool rev, int netmi, int netcst) : external{ext}, bparent{par}, reversed{rev}, netmin{netmi}, netcost{netcst} {};
+    ~ST_Node();  // To implement
+};
 
 class ST_Tree
 {
     private:
-        struct ST_Node // Nodes - can represent vertices or edges. Their corresponding tree represents a path. Single Node trees represent trivial paths.
-        {
-            bool external;
-            ST_Node* bparent;
-            ST_Node(bool ext) : external{ext}, bparent{nullptr} {};
-
-            bool reversed;
-            int netmin;
-            int netcost;
-            ST_Node *bhead, *bleft, *bright, *btail;
-            ST_Node (bool ext, ST_Node* par, bool rev, int netmi, int netcst) : external{ext}, bparent{par}, reversed{rev}, netmin{netmi}, netcost{netcst} {};
-            ~ST_Node();  // To implement
-        };
     
         ST_Tree(std::map<int, int>& treePar);    
         std::map<int, ST_Node*> vertices; 
@@ -26,9 +28,9 @@ class ST_Tree
 
         // DS elementary operations
         // Static Operations
-        ST_Node* path(int v);  // To implement
-        int head(ST_Node* p);  // To implement
-        int tail(ST_Node* p);  // To implement
+        ST_Node* path(int v);  
+        int head(ST_Node* p);  
+        int tail(ST_Node* p);  
 
         int before(int v);  // To implement
         int after(int v);  // To implement
