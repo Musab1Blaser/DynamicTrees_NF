@@ -32,7 +32,7 @@ int ST_Tree::tail(ST_Node* p)
 
 void ST_Tree::construct(ST_Node* v, ST_Node* w, double x) // v is to the left i.e. v is head of path -> lower in the actual tree
 {
-    ST_Node* u = new ST_Node(false, nullptr, false, 0, 0);
+    ST_Node* u = new ST_Node(false, nullptr, false, 0, 0); // internal node, with no parent, not reversed, netmin and netcost 0
     u->bleft = v;
     v->bparent = u;
     u->bhead = v->bhead;
@@ -44,9 +44,11 @@ void ST_Tree::construct(ST_Node* v, ST_Node* w, double x) // v is to the left i.
 std::tuple<ST_Node*, ST_Node*, double> ST_Tree::destroy (ST_Node* u)
 {
     dparent[u->bleft->btail->vertex_id] = u->bright->bhead->vertex_id;
+    std::tuple<ST_Node*, ST_Node*, double> result = {u->bleft, u->bright, 0};
     u->bleft->bparent = nullptr;
     u->bright->bparent = nullptr;
     delete u;
+    return result;
 }
 
 ST_Node* ST_Tree::concatenate(ST_Node* p, ST_Node* q, double x)
@@ -92,25 +94,61 @@ void ST_Tree::rotate(ST_Node* v)
 
         // update head and tail
         u->bhead = u->bleft->bhead;
-        u->bhead = u->bright->btail;
+        u->btail = u->bright->btail;
 
         v->bhead = v->bleft->bhead;
-        v->bhead = v->bright->btail;
+        v->btail = v->bright->btail;
     }
 }
 
 std::tuple<ST_Node*, ST_Node*, double, double> ST_Tree::split(int v)
 {
     ST_Node* vNode = vertices[v];
+    ST_Node *p {nullptr}, *q {nullptr};
+    double x {-1}, y {-1};
     while (vNode->bparent)
     {
         ST_Node* cur = vNode->bparent;
         while (cur->bparent)
             rotate(cur);
+        if (cur->bleft->btail == vNode)
+            q = cur->bright, y = 0;
+        else if (cur->bright->bhead == vNode)
+            p = cur->bleft, x = 0;
+
         destroy(cur);
     }
+    return {p, q, x, y};
 }
 
+ST_Node* ST_Tree::splice(ST_Node* p)
+{
+    int v = dparent[tail(p)];
+    auto [q, r, x, y] = split(v);
+    if (q) dparent[tail(q)] = v; // add cost adjustment
+    p = concatenate(p, path(v), 0);
+    if (r)
+        return concatenate(p,r,0);
+    else
+        return p;
+}
 
+ST_Node* ST_Tree::expose(int v)
+{
+    auto [q, r, x, y] = split(v);
+    if (q) dparent[tail(q)] = v; // add cost adjustment
+    ST_Node* p;
+    if (r)
+        p = path(v);
+    else
+        p = concatenate(path(v), r, y);
+        
+    while (dparent[tail(p)] != -1)
+        p = splice(p);
 
+    return p;
+}
 
+// TODO - Check dparent implementation - where are dparents removed?
+// TODO - link, cut and their dependencies
+// TODO - visualise graph - menu modification system?

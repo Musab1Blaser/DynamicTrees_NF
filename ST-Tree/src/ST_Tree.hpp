@@ -14,7 +14,6 @@ struct ST_Node // Nodes - can represent vertices or edges. Their corresponding t
     int netcost;
     // Internal node/edge constructor
     ST_Node (bool ext, ST_Node* par, bool rev, int netmi, int netcst) : external{ext}, vertex_id{-1}, bparent{par}, reversed{rev}, netmin{netmi}, netcost{netcst} {};
-    // ~ST_Node();  // To implement
 };
 
 class ST_Tree
@@ -47,7 +46,7 @@ class ST_Tree
         void construct(ST_Node* v, ST_Node* w, double x);  
         std::tuple<ST_Node*, ST_Node*, double> destroy (ST_Node* u);  // To implement
         
-        void rotate(ST_Node* v);  // To implement
+        void rotate(ST_Node* v);
         // void rotateleft(ST_Node* v);  // To implement
         // void rotateright(ST_Node* v);  // To implement
 
@@ -55,6 +54,9 @@ class ST_Tree
         ST_Node* concatenate(ST_Node* p, ST_Node* q, double x);
         std::tuple<ST_Node*, ST_Node*, double, double> split(int v);
 
+        // Splice + Expose
+        ST_Node* splice(ST_Node* p);
+        ST_Node* expose(int v);
 
         // ~ST_Tree(); // To implement
 
