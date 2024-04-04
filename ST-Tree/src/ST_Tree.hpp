@@ -3,10 +3,11 @@
 #include <map>
 struct ST_Node // Nodes of underlying tree - can represent vertices or edges of original tree. Their subtree represents a path in original tree. Single Node trees represent trivial/single node paths of original tree.
 {
-    bool external;
-    int vertex_id;
+    bool external; // true/false
+    int vertex_id; // vertex number
     ST_Node* bparent;
-    ST_Node *bhead, *bleft, *bright, *btail;
+    ST_Node *bleft, *bright;
+    ST_Node *bhead, *btail; // bottom-most and top-most nodes in path 
     
     // External node/vertex constructor
     ST_Node(bool ext, int vert) : external{ext}, vertex_id{vert}, bparent{nullptr}, bhead{this}, bleft{this}, bright{this}, btail{this} {}; 
@@ -23,9 +24,9 @@ struct ST_Node // Nodes of underlying tree - can represent vertices or edges of 
 class ST_Tree
 {
     private:
-        std::map<int, ST_Node*> vertices; 
-        std::map<int, int> dparent;
-        std::map<int, int> dcost;
+        std::map<int, ST_Node*> vertices; // A map from vertex number to its corresponding node in path tree
+        std::map<int, int> dparent; // dashed edges/parents map
+        std::map<int, int> dcost; // cost of dashed edge  --  not handled
 
 
         // Elementary Path operations
