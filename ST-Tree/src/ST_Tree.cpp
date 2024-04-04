@@ -13,6 +13,12 @@ ST_Tree::ST_Tree(std::map<int, int>& treePar)
     }
 }
 
+ST_Tree::ST_Tree(int n)
+{
+    for (int i = 1; i <= n; i++)
+        vertices[i] = new ST_Node(true, i), dparent[i] = -1;
+}
+
 ST_Node* ST_Tree::path(int v) {
     ST_Node* cur = vertices[v];
     while (cur->bparent)
@@ -139,9 +145,9 @@ ST_Node* ST_Tree::expose(int v)
     if (q) dparent[tail(q)] = v; // add cost adjustment
     ST_Node* p;
     if (r)
-        p = path(v);
-    else
         p = concatenate(path(v), r, y);
+    else
+        p = path(v);
         
     while (dparent[tail(p)] != -1)
         p = splice(p);
@@ -151,4 +157,17 @@ ST_Node* ST_Tree::expose(int v)
 
 // TODO - Check dparent implementation - where are dparents removed?
 // TODO - link, cut and their dependencies
+void ST_Tree::link(int v, int w, double x)
+{
+    concatenate(path(v), expose(w), x);
+}
+
+double ST_Tree::cut(int v)
+{
+    expose(v);
+    auto [p, q, x, y] = split(v);
+    dparent[v] = -1;
+    return y;
+}
+
 // TODO - visualise graph - menu modification system?

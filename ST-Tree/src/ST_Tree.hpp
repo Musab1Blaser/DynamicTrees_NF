@@ -21,6 +21,8 @@ class ST_Tree
     // private:
     public:
         ST_Tree(std::map<int, int>& treePar);    
+        ST_Tree(int n);
+
         
         std::map<int, ST_Node*> vertices; 
         std::map<int, int> dparent;
@@ -60,5 +62,17 @@ class ST_Tree
 
         // ~ST_Tree(); // To implement
 
-    // public:
+    public:
+        // Dynamic Tree Functions
+        // int parent(int v); // To implement
+        // int root(int v); // To implement
+
+        // double cost(int v); // To implement
+        // double mincost(int v); // To implement
+        // void update(int v, double x); // To implement
+
+        void link(int v, int w, double x);
+        double cut(int v);
+
+        // void evert(int v); // To implement
 };
