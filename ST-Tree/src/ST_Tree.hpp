@@ -1,6 +1,7 @@
 #pragma once
 
 #include <map>
+#include <iostream>
 struct ST_Node // Nodes of underlying tree - can represent vertices or edges of original tree. Their subtree represents a path in original tree. Single Node trees represent trivial/single node paths of original tree.
 {
     bool external; // true/false
@@ -82,4 +83,6 @@ class ST_Tree
         double cut(int v); // Divide the tree into two by breaking at vertex v  -- cost not handled
 
         // void evert(int v); // To implement
+
+        void current_path(ST_Node* start);
 };
