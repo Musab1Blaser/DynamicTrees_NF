@@ -184,7 +184,7 @@ ST_Node* ST_Tree::expose(int v) // Create bold path from this node to root of tr
 void ST_Tree::link(int v, int w, double x) // Let v be a root of a tree. Connect w to v, effectively joining two trees  --  cost not handled
 {
     concatenate(path(v), expose(w), x); // makes path from root of v to w bold
-    current_path(path(v));
+    //current_path(path(v));
 }
 
 double ST_Tree::cut(int v) // Divide the tree into two by breaking at vertex v  -- cost not handled
