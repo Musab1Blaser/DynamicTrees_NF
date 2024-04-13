@@ -24,7 +24,6 @@ struct ST_Node // Nodes of underlying tree - can represent vertices or edges of 
 class ST_Tree
 {
     private:
-        std::map<int, ST_Node*> vertices; // A map from vertex number to its corresponding node in path tree
         std::map<int, int> dparent; // dashed edges/parents map
         std::map<int, int> dcost; // cost of dashed edge  --  not handled
 
@@ -66,6 +65,7 @@ class ST_Tree
 
     public:
         // Constructors and Destructor
+        std::map<int, ST_Node*> vertices; // A map from vertex number to its corresponding node in path tree
         ST_Tree(std::map<int, int>& treePar, int n);  // Construct based on input tree/forest and number of nodes (named 1 to n)
         ST_Tree(int n); // Create tree of n unconnected nodes (named 1 to n)
         // ~ST_Tree(); // To implement
