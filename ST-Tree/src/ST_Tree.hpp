@@ -84,5 +84,4 @@ class ST_Tree
 
         // void evert(int v); // To implement
 
-        void current_path(ST_Node* start);
 };
