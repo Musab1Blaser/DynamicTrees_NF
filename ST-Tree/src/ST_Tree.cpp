@@ -196,37 +196,3 @@ double ST_Tree::cut(int v) // Divide the tree into two by breaking at vertex v  
 }
 
 // TODO - visualise graph - menu modification system?
-
-void ST_Tree::current_path(ST_Node* start) 
-{
-    struct ST_Node *current, *pre;
-    current = start;
-    while (current != NULL) {
- 
-        if (current->bleft == NULL) {
-            if (current->vertex_id !=-1){
-                std::cout << current->vertex_id << " ";
-            }
-            current = current->bright;
-        }
-        else {
-            pre = current->bleft;
-            while (pre->bright != NULL
-                   && pre->bright != current)
-                pre = pre->bright;
-    
-            if (pre->bright == NULL) {
-                pre->bright = current;
-                current = current->bleft;
-            }
-
-            else {
-                pre->bright = NULL;
-                if (current->vertex_id !=-1){
-                    std::cout << current->vertex_id << " ";
-                }
-                current = current->bright;
-            }
-        }
-    }
-}
