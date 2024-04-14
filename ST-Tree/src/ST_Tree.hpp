@@ -71,6 +71,9 @@ class ST_Tree
         ST_Tree(int n); // Create tree of n unconnected nodes (named 1 to n)
         // ~ST_Tree(); // To implement
 
+        // Getter for debugging
+        ST_Node* get_vertex_ptr(int vertex_id);
+
         // Dynamic Tree Operations
         // int parent(int v); // To implement
         // int root(int v); // To implement
