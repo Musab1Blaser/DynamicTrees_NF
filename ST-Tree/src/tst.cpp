@@ -11,7 +11,7 @@ int main()
     typedef adjacency_list<vecS, vecS, bidirectionalS, no_property, EdgeWeightProperty> Graph;
     enum {A, B, C, D, E, N};
     const int num_vertices = N;
-    const char* name = "12345";
+    const char* name = "ABCDEF";
 
     typedef std::pair<int, int> Edge;
     Edge edge_array[] =
@@ -31,6 +31,7 @@ int main()
     // }
 
     std::ofstream dot_file("graph.dot");
+    write_graphviz(dot_file, g, make_label_writer(name), make_label_writer(weightmap), default_writer());
     system("dot -Tpng graph.dot -o graph.png");
     system("xdg-open graph.png");
 
