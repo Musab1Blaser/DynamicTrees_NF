@@ -223,4 +223,33 @@ int ST_Tree::before(int v) { // returns the vertex before v on path(v), if v is 
     return -1;
 }
 
+int ST_Tree::after(int v) { // returns the vertex after v on path(v), if v is the head return null
+    ST_Node* u = vertices[v];
+
+    //ST_Node* current = u;
+    // while (current->bparent) {
+    //     if (current->bparent->reversed)
+    //         current->reversed = !current->reversed;
+    //     current = current->bparent;
+    // }
+
+    // deepest node that is the left child of its parent
+    ST_Node* deepest_left = nullptr;
+    ST_Node* current = u;
+    while (current->bparent) {
+        if (current->bparent->bleft == current) {  
+            deepest_left = current->bparent;
+            break;
+        }
+        current = current->bparent;
+    }
+
+    // rightmost external descendant 
+    if (deepest_left) {
+        return deepest_left->bright->bhead->vertex_id;
+    }
+
+    return -1;
+}
+
 // TODO - visualise graph - menu modification system?
