@@ -36,7 +36,6 @@ class ST_Tree
         int head(ST_Node* p);  // Return head/lower-most node of path
         int tail(ST_Node* p);  // Return tail/upper-most node of path
 
-        // int before(int v);  // To implement
         // int after(int v);  // To implement
 
         // int pcost(int v);  // To implement
@@ -69,6 +68,7 @@ class ST_Tree
         // Constructors and Destructor
         ST_Tree(std::map<int, int>& treePar, int n);  // Construct based on input tree/forest and number of nodes (named 1 to n)
         ST_Tree(int n); // Create tree of n unconnected nodes (named 1 to n)
+        int before(int v);  // To implement
         // ~ST_Tree(); // To implement
 
         // Dynamic Tree Operations

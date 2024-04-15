@@ -15,6 +15,7 @@ int main()
 
     ST_Tree ST = ST_Tree(6); // Initialise ST-Tree with 6 nodes numbered 1, 2, ..., 6
     ST.link(2, 1, 0); // make 1 the parent of 2
+    std::cout << ST.before(1);
     ST.link(6, 5, 0); // make 5 the parent of 6
     ST.link(4, 2, 0); // make 2 the parent of 4
     ST.link(5, 2, 0); // make 2 the parent of 5 - makes 2-4 connection dashed

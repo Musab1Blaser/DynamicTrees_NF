@@ -184,7 +184,6 @@ ST_Node* ST_Tree::expose(int v) // Create bold path from this node to root of tr
 void ST_Tree::link(int v, int w, double x) // Let v be a root of a tree. Connect w to v, effectively joining two trees  --  cost not handled
 {
     concatenate(path(v), expose(w), x); // makes path from root of v to w bold
-    //current_path(path(v));
 }
 
 double ST_Tree::cut(int v) // Divide the tree into two by breaking at vertex v  -- cost not handled
@@ -193,6 +192,35 @@ double ST_Tree::cut(int v) // Divide the tree into two by breaking at vertex v  
     auto [p, q, x, y] = split(v);
     dparent[v] = -1; // don't connect me to what I split off from
     return y;
+}
+
+int ST_Tree::before(int v) { // returns the vertex before v on path(v), if v is the tail return null
+    ST_Node* u = vertices[v];
+
+    //ST_Node* current = u;
+    // while (current->bparent) {
+    //     if (current->bparent->reversed)
+    //         current->reversed = !current->reversed;
+    //     current = current->bparent;
+    // }
+
+    // deepest node that is the right child of its parent
+    ST_Node* deepest_right = nullptr;
+    ST_Node* current = u;
+    while (current->bparent) {
+        if (current->bparent->bright == current) {  
+            deepest_right = current->bparent;
+            break;
+        }
+        current = current->bparent;
+    }
+
+    // rightmost external descendant 
+    if (deepest_right) {
+        return deepest_right->bleft->btail->vertex_id;
+    }
+
+    return -1;
 }
 
 // TODO - visualise graph - menu modification system?
