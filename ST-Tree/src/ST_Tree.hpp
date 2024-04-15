@@ -37,7 +37,7 @@ class ST_Tree
         int tail(ST_Node* p);  // Return tail/upper-most node of path
 
         int before(int v);  // return the vertex right before v in the path, unless it is tail in which case return -1
-        // int after(int v);  // return the vertex right after v in the path, unless it is head in which case return -1
+        int after(int v);  // return the vertex right after v in the path, unless it is head in which case return -1
 
         // int pcost(int v);  // To implement
         // int pmincost(ST_Node* p);  // To implement
@@ -66,7 +66,6 @@ class ST_Tree
 
 
     public:
-        int after(int v);  // return the vertex right after v in the path, unless it is head in which case return -1
         // Constructors and Destructor
         ST_Tree(std::map<int, int>& treePar, int n);  // Construct based on input tree/forest and number of nodes (named 1 to n)
         ST_Tree(int n); // Create tree of n unconnected nodes (named 1 to n)

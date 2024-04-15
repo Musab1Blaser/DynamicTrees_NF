@@ -226,13 +226,6 @@ int ST_Tree::before(int v) { // returns the vertex before v on path(v), if v is 
 int ST_Tree::after(int v) { // returns the vertex after v on path(v), if v is the head return null
     ST_Node* u = vertices[v];
 
-    //ST_Node* current = u;
-    // while (current->bparent) {
-    //     if (current->bparent->reversed)
-    //         current->reversed = !current->reversed;
-    //     current = current->bparent;
-    // }
-
     // deepest node that is the left child of its parent
     ST_Node* deepest_left = nullptr;
     ST_Node* current = u;
