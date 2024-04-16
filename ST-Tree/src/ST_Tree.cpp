@@ -246,7 +246,7 @@ int ST_Tree::after(int v) { // returns the vertex after v on path(v), if v is th
 }
 
 int ST_Tree::parent(int v){
-    if (tail(path(v)) == v){
+    if (tail(path(v)) == v){ //so no parent
         return -1;
     }
 
