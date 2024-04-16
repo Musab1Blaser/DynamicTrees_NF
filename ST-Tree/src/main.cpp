@@ -18,7 +18,10 @@ int main()
     ST.link(6, 5, 0); // make 5 the parent of 6
     ST.link(4, 2, 0); // make 2 the parent of 4
     ST.link(5, 2, 0); // make 2 the parent of 5 - makes 2-4 connection dashed
-    ST.link(3, 1, 0); // make 1 the parent of 3 - makes 1-2 connection dashed
+    std::cout << ST.parent(1) << " " << ST.parent(2) << " " << ST.parent(5) << " " << ST.parent(6) << std::endl; //showing the parent of each node
+    ST.link(3, 1, 0); // make 1 the parent of 3 - makes 1-2 connection dashed;
+    //to verify dashed edges, printing the parent of 4 and 2 aswell
+    std::cout << ST.parent(4) << " " << ST.parent(2) << std::endl;
     
     // can also directly initialise - gives slightly different output as links added in sorted order, instead of provided order
     // ST_Tree ST = ST_Tree(treePar, 6);

@@ -194,7 +194,7 @@ double ST_Tree::cut(int v) // Divide the tree into two by breaking at vertex v  
     return y;
 }
 
-int ST_Tree::before(int v) { // returns the vertex before v on path(v), if v is the tail return null
+int ST_Tree::before(int v) { // returns the vertex before v on path(v), if v is the tail return null -- reversed not considered
     ST_Node* u = vertices[v];
 
     //ST_Node* current = u;
@@ -243,6 +243,18 @@ int ST_Tree::after(int v) { // returns the vertex after v on path(v), if v is th
     }
 
     return -1;
+}
+
+int ST_Tree::parent(int v){
+    if (tail(path(v)) == v){
+        return -1;
+    }
+
+    return after(v);
+}
+
+int ST_Tree::root(int v){
+    return tail(expose(v));
 }
 
 // TODO - visualise graph - menu modification system?

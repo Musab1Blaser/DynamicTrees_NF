@@ -72,8 +72,8 @@ class ST_Tree
         // ~ST_Tree(); // To implement
 
         // Dynamic Tree Operations
-        // int parent(int v); // To implement
-        // int root(int v); // To implement
+        int parent(int v); // return parent of v (or return null if it has no parent)
+        int root(int v); // return root of the tree containing v
 
         // double cost(int v); // To implement
         // double mincost(int v); // To implement
