@@ -277,11 +277,40 @@ std::vector<std::vector<int>> ST_Tree::getAllGraphs(){
     for (ST_Node* p : paths){
         std::vector<int> graph;
         ST_Node* cur = p->bhead;
-        graph.push_back(cur->vertex_id);
-        do{
-            cur = after(cur->vertex_id);
+        int cur_val = cur->vertex_id;
+        while (cur != p->btail);
+        {
             graph.push_back(cur->vertex_id);
-        } while (cur != p->btail);
+            cur_val = after(cur_val);
+        }
+        graph.push_back(cur_val);
+        if (!cur->reversed){
+            std::reverse(graph.begin(), graph.end());
+        }
+        graphs.push_back(graph);
     }
+    return graphs;
 }
-    
+
+std::vector<std::vector<int>> ST_Tree::getAllEdges(){
+    std::vector<std::vector<int>> edges;
+    std::vector<std::vector<int>> graphs = getAllGraphs();
+    for (std::vector<int> graph : graphs){
+        for (int i = 0; i < graph.size() - 1; i++){
+            std::vector<int> edge = {graph[i], graph[i+1], 0};
+            edges.push_back(edge);
+        }
+    }
+    return edges;
+};
+
+std::vector<std::vector<int>> ST_Tree::getAllDashEdges(){
+    std::vector<std::vector<int>> edges;
+    for (const auto &[u, v] : dparent){
+        std::vector<int> edge = {v, u, 1};
+        edges.push_back(edge);
+    }
+    return edges;
+};
+
+
