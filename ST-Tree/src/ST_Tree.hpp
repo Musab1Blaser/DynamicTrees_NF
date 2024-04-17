@@ -1,6 +1,7 @@
 #pragma once
 
 #include <map>
+#include <vector>
 struct ST_Node // Nodes of underlying tree - can represent vertices or edges of original tree. Their subtree represents a path in original tree. Single Node trees represent trivial/single node paths of original tree.
 {
     bool external; // true/false
@@ -61,13 +62,15 @@ class ST_Tree
         // Path Partition functions - bold and dashed edges
         ST_Node* splice(ST_Node* p); // Extend current bold path upwards by converting one dashed edge  -- cost not handled
         ST_Node* expose(int v); // Create bold path from this node to root of tree -- cost not handled
-
+        std::vector<ST_Node*> getAllUniquePaths(); 
 
     public:
         // Constructors and Destructor
         std::map<int, ST_Node*> vertices; // A map from vertex number to its corresponding node in path tree
         ST_Tree(std::map<int, int>& treePar, int n);  // Construct based on input tree/forest and number of nodes (named 1 to n)
-        ST_Tree(int n); // Create tree of n unconnected nodes (named 1 to n)
+        ST_Tree(int n);
+        
+         // Create tree of n unconnected nodes (named 1 to n)
         // ~ST_Tree(); // To implement
 
         // Dynamic Tree Operations
@@ -80,6 +83,6 @@ class ST_Tree
 
         void link(int v, int w, double x); // Let v be a root of a tree. Connect w to v, effectively joining two trees  --  cost not handled
         double cut(int v); // Divide the tree into two by breaking at vertex v  -- cost not handled
-
+        std::vector<std::vector<int>> getAllGraphs(); // Return all edges of the tree in the form of a list of pairs of vertices
         // void evert(int v); // To implement
 };

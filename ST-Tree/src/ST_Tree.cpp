@@ -195,3 +195,30 @@ double ST_Tree::cut(int v) // Divide the tree into two by breaking at vertex v  
 }
 
 // TODO - visualise graph - menu modification system?
+std::vector<ST_Node*> ST_Tree::getAllUniquePaths(){
+    std::map <ST_Node*, int> paths;
+    for ( int i = vertices.size(); i >= 0; i--){
+        ST_Node* p = path(i);
+        if (paths.find(p) == paths.end())
+            paths[p] = 1;
+    };
+    std::vector<ST_Node*> uniquePaths;
+    for (auto const& [key, val] : paths)
+        uniquePaths.push_back(key);
+    return uniquePaths;
+}
+
+std::vector<std::vector<int>> ST_Tree::getAllGraphs(){
+    std::vector<std::vector<int>> graphs;
+    std::vector<ST_Node*> paths = getAllUniquePaths();
+    for (ST_Node* p : paths){
+        std::vector<int> graph;
+        ST_Node* cur = p->bhead;
+        graph.push_back(cur->vertex_id);
+        do{
+            cur = after(cur->vertex_id);
+            graph.push_back(cur->vertex_id);
+        } while (cur != p->btail);
+    }
+}
+    

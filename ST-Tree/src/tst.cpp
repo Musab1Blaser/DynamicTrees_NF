@@ -33,7 +33,7 @@ int main()
     std::ofstream dot_file("graph.dot");
     write_graphviz(dot_file, g, make_label_writer(name), make_label_writer(weightmap), default_writer());
     system("dot -Tpng graph.dot -o graph.png");
-    system("xdg-open graph.png");
+    system("open graph.png");
 
     int x;
 
