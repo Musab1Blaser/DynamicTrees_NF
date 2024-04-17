@@ -257,4 +257,39 @@ int ST_Tree::root(int v){
     return tail(expose(v));
 }
 
+int ST_Tree::grosscost(ST_Node* v){
+    return ((v->netcost) + (grossmin(v)));
+}
+
+int ST_Tree::grossmin(ST_Node* v){
+  int min_value = v->netmin;
+
+  // traverse upwards till root
+  while (v->bparent != nullptr) {
+    if (v->external==false){
+        min_value += v->netmin;
+    }
+    v = v->bparent;
+  }
+
+  return min_value;
+}
+
+int ST_Tree::pcost(int v){
+    ST_Node* u = vertices[v];
+
+    // deepest node that is the left child of its parent
+    ST_Node* deepest_left = nullptr;
+    ST_Node* current = u;
+    while (current->bparent) {
+        if (current->bparent->bleft == current) {  
+            deepest_left = current->bparent;
+            break;
+        }
+        current = current->bparent;
+    }
+
+    return grosscost(deepest_left->bparent);
+}
+
 // TODO - visualise graph - menu modification system?
