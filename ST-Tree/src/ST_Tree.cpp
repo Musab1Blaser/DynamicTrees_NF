@@ -260,7 +260,7 @@ int ST_Tree::root(int v){
 // TODO - visualise graph - menu modification system?
 std::vector<ST_Node*> ST_Tree::getAllUniquePaths(){
     std::map <ST_Node*, int> paths;
-    for ( int i = vertices.size(); i >= 0; i--){
+    for ( int i = vertices.size(); i > 0; i--){
         ST_Node* p = path(i);
         if (paths.find(p) == paths.end())
             paths[p] = 1;
@@ -278,9 +278,9 @@ std::vector<std::vector<int>> ST_Tree::getAllGraphs(){
         std::vector<int> graph;
         ST_Node* cur = p->bhead;
         int cur_val = cur->vertex_id;
-        while (cur != p->btail);
+        while (cur_val != p->btail->vertex_id)
         {
-            graph.push_back(cur->vertex_id);
+            graph.push_back(cur_val);
             cur_val = after(cur_val);
         }
         graph.push_back(cur_val);
@@ -297,6 +297,7 @@ std::vector<std::vector<int>> ST_Tree::getAllEdges(){
     std::vector<std::vector<int>> graphs = getAllGraphs();
     for (std::vector<int> graph : graphs){
         for (int i = 0; i < graph.size() - 1; i++){
+            std::cout << graph[i] << " " << graph[i+1] << std::endl;
             std::vector<int> edge = {graph[i], graph[i+1], 0};
             edges.push_back(edge);
         }
@@ -307,8 +308,10 @@ std::vector<std::vector<int>> ST_Tree::getAllEdges(){
 std::vector<std::vector<int>> ST_Tree::getAllDashEdges(){
     std::vector<std::vector<int>> edges;
     for (const auto &[u, v] : dparent){
-        std::vector<int> edge = {v, u, 1};
-        edges.push_back(edge);
+        if (v!=-1){
+            std::vector<int> edge = {v, u, 1};
+            edges.push_back(edge);
+        }
     }
     return edges;
 };

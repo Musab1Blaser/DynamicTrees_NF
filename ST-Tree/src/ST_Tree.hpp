@@ -3,6 +3,9 @@
 #include <map>
 #include <set>
 #include <vector>
+#include <iostream>
+
+
 struct ST_Node // Nodes of underlying tree - can represent vertices or edges of original tree. Their subtree represents a path in original tree. Single Node trees represent trivial/single node paths of original tree.
 {
     bool external; // true/false
@@ -87,7 +90,6 @@ class ST_Tree
 
         void link(int v, int w, double x); // Let v be a root of a tree. Connect w to v, effectively joining two trees  --  cost not handled
         double cut(int v); // Divide the tree into two by breaking at vertex v  -- cost not handled
-        std::vector<std::vector<int>> getAllGraphs(); // Return all edges of the tree in the form of a list of pairs of vertices
         // void evert(int v); // To implement
         std::vector<std::vector<int>> getAllEdges(); // Return all edges in the tree
         std::vector<std::vector<int>> getAllDashEdges(); // Return all dashed edges in the tree
