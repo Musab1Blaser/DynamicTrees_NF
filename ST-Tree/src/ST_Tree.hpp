@@ -40,7 +40,7 @@ class ST_Tree
         int after(int v);  // return the vertex right after v in the path, unless it is head in which case return -1
 
         int pcost(int v);  // To implement
-        int pmincost(ST_Node* p);  // To implement
+        //int pmincost(ST_Node* p);  // To implement
         
         // void pupdate(ST_Node* p, double x);  // To implement
         // void reverse(ST_Node* p);  // To implement
