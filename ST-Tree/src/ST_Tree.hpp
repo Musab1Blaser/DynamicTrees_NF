@@ -1,6 +1,7 @@
 #pragma once
 
 #include <map>
+#include <set>
 #include <vector>
 struct ST_Node // Nodes of underlying tree - can represent vertices or edges of original tree. Their subtree represents a path in original tree. Single Node trees represent trivial/single node paths of original tree.
 {
@@ -25,6 +26,7 @@ struct ST_Node // Nodes of underlying tree - can represent vertices or edges of 
 class ST_Tree
 {
     private:
+        std::map<int, ST_Node*> vertices; // A map from vertex number to its corresponding node in path tree
         std::map<int, int> dparent; // dashed edges/parents map
         std::map<int, int> dcost; // cost of dashed edge  --  not handled
 
@@ -35,8 +37,8 @@ class ST_Tree
         int head(ST_Node* p);  // Return head/lower-most node of path
         int tail(ST_Node* p);  // Return tail/upper-most node of path
 
-        // int before(int v);  // To implement
-        // int after(int v);  // To implement
+        int before(int v);  // return the vertex right before v in the path, unless it is tail in which case return -1
+        int after(int v);  // return the vertex right after v in the path, unless it is head in which case return -1
 
         // int pcost(int v);  // To implement
         // int pmincost(ST_Node* p);  // To implement
@@ -62,11 +64,13 @@ class ST_Tree
         // Path Partition functions - bold and dashed edges
         ST_Node* splice(ST_Node* p); // Extend current bold path upwards by converting one dashed edge  -- cost not handled
         ST_Node* expose(int v); // Create bold path from this node to root of tree -- cost not handled
-        std::vector<ST_Node*> getAllUniquePaths(); 
+
+        //function related to visualisation
+        std::vector<ST_Node*> getAllUniquePaths(); // Return all unique paths in the tree
+        std::vector<std::vector<int>> getAllGraphs(); // Return all connected components of the tree
 
     public:
         // Constructors and Destructor
-        std::map<int, ST_Node*> vertices; // A map from vertex number to its corresponding node in path tree
         ST_Tree(std::map<int, int>& treePar, int n);  // Construct based on input tree/forest and number of nodes (named 1 to n)
         ST_Tree(int n);
         
@@ -74,8 +78,8 @@ class ST_Tree
         // ~ST_Tree(); // To implement
 
         // Dynamic Tree Operations
-        // int parent(int v); // To implement
-        // int root(int v); // To implement
+        int parent(int v); // return parent of v (or return null if it has no parent)
+        int root(int v); // return root of the tree containing v
 
         // double cost(int v); // To implement
         // double mincost(int v); // To implement
@@ -85,4 +89,7 @@ class ST_Tree
         double cut(int v); // Divide the tree into two by breaking at vertex v  -- cost not handled
         std::vector<std::vector<int>> getAllGraphs(); // Return all edges of the tree in the form of a list of pairs of vertices
         // void evert(int v); // To implement
+        std::vector<std::vector<int>> getAllEdges(); // Return all edges in the tree
+        std::vector<std::vector<int>> getAllDashEdges(); // Return all dashed edges in the tree
+
 };

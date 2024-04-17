@@ -1,5 +1,5 @@
 #include "ST_Tree.hpp"
-#include <set>
+
 
 // Constructors
 ST_Tree::ST_Tree(std::map<int, int>& treePar, int n) // Construct based on input tree/forest and number of nodes (named 1 to n)
@@ -192,6 +192,69 @@ double ST_Tree::cut(int v) // Divide the tree into two by breaking at vertex v  
     auto [p, q, x, y] = split(v);
     dparent[v] = -1; // don't connect me to what I split off from
     return y;
+}
+
+int ST_Tree::before(int v) { // returns the vertex before v on path(v), if v is the tail return null -- reversed not considered
+    ST_Node* u = vertices[v];
+
+    //ST_Node* current = u;
+    // while (current->bparent) {
+    //     if (current->bparent->reversed)
+    //         current->reversed = !current->reversed;
+    //     current = current->bparent;
+    // }
+
+    // deepest node that is the right child of its parent
+    ST_Node* deepest_right = nullptr;
+    ST_Node* current = u;
+    while (current->bparent) {
+        if (current->bparent->bright == current) {  
+            deepest_right = current->bparent;
+            break;
+        }
+        current = current->bparent;
+    }
+
+    // rightmost external descendant 
+    if (deepest_right) {
+        return deepest_right->bleft->btail->vertex_id;
+    }
+
+    return -1;
+}
+
+int ST_Tree::after(int v) { // returns the vertex after v on path(v), if v is the head return null
+    ST_Node* u = vertices[v];
+
+    // deepest node that is the left child of its parent
+    ST_Node* deepest_left = nullptr;
+    ST_Node* current = u;
+    while (current->bparent) {
+        if (current->bparent->bleft == current) {  
+            deepest_left = current->bparent;
+            break;
+        }
+        current = current->bparent;
+    }
+
+    // rightmost external descendant 
+    if (deepest_left) {
+        return deepest_left->bright->bhead->vertex_id;
+    }
+
+    return -1;
+}
+
+int ST_Tree::parent(int v){
+    if (tail(path(v)) == v){ //so no parent
+        return -1;
+    }
+
+    return after(v);
+}
+
+int ST_Tree::root(int v){
+    return tail(expose(v));
 }
 
 // TODO - visualise graph - menu modification system?
