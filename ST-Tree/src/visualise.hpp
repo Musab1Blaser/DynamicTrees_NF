@@ -3,6 +3,7 @@
 #include <boost/graph/graphviz.hpp>
 #include <fstream>
 #include <vector>
+#include <string>
 
 
 // Define your graph types using Boost.Graph
@@ -19,5 +20,5 @@ class GraphManager {
     GraphManager(int n):vertices(n) {};
 
     // Function to generate and display the combined graph
-    void displayCombinedGraph(std::vector<std::vector<int>> bold_edges, std::vector<std::vector<int>> dashed_edges);
+    void displayCombinedGraph(std::vector<std::vector<int>> bold_edges, std::vector<std::vector<int>> dashed_edges, std::string filename);
 };

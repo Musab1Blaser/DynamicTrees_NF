@@ -1,13 +1,15 @@
 #include "visualise.hpp"
 #include "ST_Tree.hpp"
 #include <iostream>
+#include <string>
+#include <vector>
 
 
-void displayGraph(GraphManager g, ST_Tree ST)
+void displayGraph(GraphManager g, ST_Tree ST, std::string filename)
 {
     std::vector<std::vector<int> > boldEdges = ST.getAllEdges(); // get all bold edges
     std::vector<std::vector<int> > dashedEdges = ST.getAllDashEdges(); // get all dashed edges
-    g.displayCombinedGraph(boldEdges, dashedEdges); // display the graph
+    g.displayCombinedGraph(boldEdges, dashedEdges, filename); // display the graph
 }
 
 
@@ -40,10 +42,10 @@ int main()
     //         std::cout << v << " ";
     //     std::cout << std::endl;
     // }
-    displayGraph(graph_manager, ST); // display the graph
+    displayGraph(graph_manager, ST, "graph1"); // display the graph
     int x;
     ST.cut(2); // break tree edge par(2)-2 -> result 1.3 and 4.2.5-6 (. signifies dashed edge) 
     // display the graph
     std::cin >> x;
-    displayGraph(graph_manager, ST);
+    displayGraph(graph_manager, ST, "graph2");
 }
