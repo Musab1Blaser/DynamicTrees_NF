@@ -18,8 +18,8 @@ struct ST_Node // Nodes of underlying tree - can represent vertices or edges of 
     ST_Node(bool ext, int vert) : external{ext}, vertex_id{vert}, bparent{nullptr}, bhead{this}, bleft{this}, bright{this}, btail{this} {}; 
 
     bool reversed; //to determine if reverse has occured
-    int netmin; 
-    int netcost; //cost
+    double netmin; 
+    double netcost; //cost
 
     // Internal node/edge constructor
     ST_Node (bool ext, ST_Node* par, bool rev, int netmi, int netcst) : external{ext}, vertex_id{-1}, bparent{par}, reversed{rev}, netmin{netmi}, netcost{netcst} {};
@@ -43,8 +43,8 @@ class ST_Tree
         int before(int v);  // return the vertex right before v in the path, unless it is tail in which case return -1
         int after(int v);  // return the vertex right after v in the path, unless it is head in which case return -1
 
-        int pcost(int v);  // To implement
-        int pmincost(ST_Node* p);  // Return the vertex closest to tail(p) such that (u, after(u)) has minimum cost among edges on p
+        double pcost(int v);  // To implement
+        double pmincost(ST_Node* p);  // Return the vertex closest to tail(p) such that (u, after(u)) has minimum cost among edges on p
         void pupdate(ST_Node* p, double x);  // To implement
         void reverse(ST_Node* p);  // To implement
 

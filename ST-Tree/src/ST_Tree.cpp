@@ -64,6 +64,30 @@ void ST_Tree::construct(ST_Node* v, ST_Node* w, double x) // Create a new node c
     u->bright = w;
     w->bparent = u; 
     u->btail = w->btail;
+
+    // update costs
+    // update netmin
+    double nmin;
+    nmin = x;
+    if (!u->bleft->external)
+        nmin = std::min(nmin, u->bleft->netmin);
+    if (!u->bright->external)
+        nmin = std::min(nmin, u->bright->netmin);
+    
+    // update netcost
+    double ncost;
+    double gcost = x;
+    if (!u->bleft->external)
+        gcost += u->bleft->netcost + u->bleft->netmin;
+    if (!u->bright->external)
+        gcost += u->bright->netcost + u->bleft->netmin;
+    ncost = gcost - nmin;
+
+    // update children
+    if (!u->bleft->external)
+        u->bleft->netmin -= nmin; 
+    if (!u->bright->external)
+        u->bright->netmin -= nmin; 
 }
 
 std::tuple<ST_Node*, ST_Node*, double> ST_Tree::destroy (ST_Node* u) // Destroy the root of the tree, breaking it into two trees/represented paths -> return (path1, path2, edge1cost, edge2cost) - edge1, edge2 are the edges broken --  cost not handled
@@ -71,6 +95,13 @@ std::tuple<ST_Node*, ST_Node*, double> ST_Tree::destroy (ST_Node* u) // Destroy 
     // dparent[u->bleft->btail->vertex_id] = u->bright->bhead->vertex_id; - should not be modifying dashed paths inside helper functions
     std::tuple<ST_Node*, ST_Node*, double> result = {u->bleft, u->bright, 0};
     
+    // Update costs of children
+    if (!u->bleft->external)
+        u->bleft->netmin += u->netmin;
+    if (!u->bleft->external)
+        u->bright->netmin += u->netmin;
+
+
     // remove references to u and delete u
     u->bleft->bparent = nullptr;
     u->bright->bparent = nullptr;
@@ -124,7 +155,7 @@ void ST_Tree::rotate(ST_Node* v)
 }
 
 // Main operations
-ST_Node* ST_Tree::concatenate(ST_Node* p, ST_Node* q, double x) // Connect two paths through an edge of cost x  -- cost not handled
+ST_Node* ST_Tree::concatenate(ST_Node* p, ST_Node* q, double x) // Connect two paths through an edge of cost x 
 {
     construct(p, q, x);
     return p->bparent;
@@ -341,7 +372,7 @@ int ST_Tree::grossmin(ST_Node* v){
   return min_value;
 }
 
-int ST_Tree::pcost(int v){
+double ST_Tree::pcost(int v){
     ST_Node* u = vertices[v];
 
     // deepest node that is the left child of its parent
@@ -358,7 +389,7 @@ int ST_Tree::pcost(int v){
     return grosscost(deepest_left->bparent);
 }
 
-int ST_Tree::pmincost(ST_Node* p){
+double ST_Tree::pmincost(ST_Node* p){
     ST_Node* u = p;
 
     while (u->netcost!=0 and (u->bright->external != true) or (u->bright->netmin<=0)){
