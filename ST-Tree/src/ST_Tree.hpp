@@ -17,10 +17,9 @@ struct ST_Node // Nodes of underlying tree - can represent vertices or edges of 
     // External node/vertex constructor
     ST_Node(bool ext, int vert) : external{ext}, vertex_id{vert}, bparent{nullptr}, bhead{this}, bleft{this}, bright{this}, btail{this} {}; 
 
-    // not properly handled attributes:
-    bool reversed;
-    int netmin;
-    int netcost;
+    bool reversed; //to determine if reverse has occured
+    int netmin; 
+    int netcost; //cost
 
     // Internal node/edge constructor
     ST_Node (bool ext, ST_Node* par, bool rev, int netmi, int netcst) : external{ext}, vertex_id{-1}, bparent{par}, reversed{rev}, netmin{netmi}, netcost{netcst} {};
@@ -36,6 +35,7 @@ class ST_Tree
 
         // Elementary Path operations
         // Static Operations
+
         ST_Node* path(int v);  // Return the node representing the path v belongs to
         int head(ST_Node* p);  // Return head/lower-most node of path
         int tail(ST_Node* p);  // Return tail/upper-most node of path
@@ -43,11 +43,15 @@ class ST_Tree
         int before(int v);  // return the vertex right before v in the path, unless it is tail in which case return -1
         int after(int v);  // return the vertex right after v in the path, unless it is head in which case return -1
 
-        // int pcost(int v);  // To implement
-        // int pmincost(ST_Node* p);  // To implement
+        int pcost(int v);  // To implement
+        //int pmincost(ST_Node* p);  // To implement
         
         // void pupdate(ST_Node* p, double x);  // To implement
         // void reverse(ST_Node* p);  // To implement
+
+        // sub operations:
+        int grossmin(ST_Node* v);
+        int grosscost(ST_Node* v);
 
         // Dynamic Operations
         // Suboperations
@@ -80,6 +84,9 @@ class ST_Tree
          // Create tree of n unconnected nodes (named 1 to n)
         // ~ST_Tree(); // To implement
 
+        // Getter for debugging
+        ST_Node* get_vertex_ptr(int vertex_id);
+
         // Dynamic Tree Operations
         int parent(int v); // return parent of v (or return null if it has no parent)
         int root(int v); // return root of the tree containing v
@@ -93,5 +100,4 @@ class ST_Tree
         // void evert(int v); // To implement
         std::vector<std::vector<int>> getAllEdges(); // Return all edges in the tree
         std::vector<std::vector<int>> getAllDashEdges(); // Return all dashed edges in the tree
-
 };

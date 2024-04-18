@@ -15,33 +15,24 @@ void displayGraph(GraphManager g, ST_Tree ST, std::string filename)
 
 int main()
 {
-//     // tree to represent:
-//     // std::map<int, int> treePar = {{2, 1}, {6, 5}, {4, 2}, {5, 2}, {3, 1}};
+    int n;
+    std::cout << "How many nodes do you want in the Graph: ";
+    std::cin >> n;
 
-//     //       1
-//     //     /   \
-//     //    3     2
-//     //        /   \
-//     //       4     5
-//     //              \
-//     //               6
     ST_Tree ST = ST_Tree(6); // Initialise ST-Tree with 6 nodes numbered 1, 2, ..., 6
     GraphManager graph_manager(6);
+    
+    // std::string opt;
     ST.link(2, 1, 0); // make 1 the parent of 2
     ST.link(6, 5, 0); // make 5 the parent of 6
     ST.link(4, 2, 0); // make 2 the parent of 4
     ST.link(5, 2, 0); // make 2 the parent of 5 - makes 2-4 connection dashed
-    ST.link(3, 1, 0); // make 1 the parent of 3 - makes 1-2 connection dashed
+    std::cout << ST.parent(1) << " " << ST.parent(2) << " " << ST.parent(5) << " " << ST.parent(6) << std::endl; //showing the parent of each node
+    ST.link(3, 1, 0); // make 1 the parent of 3 - makes 1-2 connection dashed;
     
-    // can also directly initialise - gives slightly different output as links added in sorted order, instead of provided order
-    // ST_Tree ST = ST_Tree(treePar, 6);
-    // std::vector<std::vector<int> > g = ST.getAllGraphs(); 
-    // for (auto &comp : g)
-    // {
-    //     for (auto &v : comp)
-    //         std::cout << v << " ";
-    //     std::cout << std::endl;
-    // }
+    //to verify dashed edges, printing the parent of 4 and 2 aswell
+    std::cout << ST.parent(4) << " " << ST.parent(2) << std::endl;
+    
     displayGraph(graph_manager, ST, "graph1"); // display the graph
     int x;
     ST.cut(2); // break tree edge par(2)-2 -> result 1.3 and 4.2.5-6 (. signifies dashed edge) 

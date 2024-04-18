@@ -1,4 +1,5 @@
 #include "ST_Tree.hpp"
+#include <algorithm>
 
 
 // Constructors
@@ -20,6 +21,12 @@ ST_Tree::ST_Tree(int n) // Create tree of n unconnected nodes (named 1 to n)
 { 
     for (int i = 1; i <= n; i++)
         vertices[i] = new ST_Node(true, i), dparent[i] = -1;
+}
+
+// Getter for debugging
+ST_Node* ST_Tree::get_vertex_ptr(int vertex_id)
+{
+    return vertices[vertex_id];
 }
 
 // Elemntary Path operations
@@ -61,7 +68,7 @@ void ST_Tree::construct(ST_Node* v, ST_Node* w, double x) // Create a new node c
 
 std::tuple<ST_Node*, ST_Node*, double> ST_Tree::destroy (ST_Node* u) // Destroy the root of the tree, breaking it into two trees/represented paths -> return (path1, path2, edge1cost, edge2cost) - edge1, edge2 are the edges broken --  cost not handled
 {
-    dparent[u->bleft->btail->vertex_id] = u->bright->bhead->vertex_id;
+    // dparent[u->bleft->btail->vertex_id] = u->bright->bhead->vertex_id; - should not be modifying dashed paths inside helper functions
     std::tuple<ST_Node*, ST_Node*, double> result = {u->bleft, u->bright, 0};
     
     // remove references to u and delete u
@@ -136,9 +143,9 @@ std::tuple<ST_Node*, ST_Node*, double, double> ST_Tree::split(int v) // Break a 
             rotate(cur); 
 
         // store whether left edge or right edge in path
-        if (cur->bleft->btail == vNode)
+        if (cur->bleft->btail == vNode) // if i am in left, then the path being separated is from me to above - after(v) to tail(path)
             q = cur->bright, y = 0;
-        else if (cur->bright->bhead == vNode)
+        else if (cur->bright->bhead == vNode) // if i am in right, then the path being separated is from me to bottom - from head(path) to before(v)
             p = cur->bleft, x = 0;
 
         destroy(cur); // delete edge
@@ -163,7 +170,7 @@ ST_Node* ST_Tree::splice(ST_Node* p) // Extend current bold path upwards by conv
 ST_Node* ST_Tree::expose(int v) // Create bold path from this node to root of tree -- cost not handled
 {
     auto [q, r, x, y] = split(v); // cut me off from anything below
-    if (q) dparent[tail(q)] = v; 
+    if (q) dparent[tail(q)] = v; // if path afer me - then make me its dashed parent
 
     // connect me upwards
     ST_Node* p; 
@@ -317,3 +324,39 @@ std::vector<std::vector<int>> ST_Tree::getAllDashEdges(){
 };
 
 
+int ST_Tree::grosscost(ST_Node* v){
+    return ((v->netcost) + (grossmin(v)));
+}
+
+int ST_Tree::grossmin(ST_Node* v){
+  int min_value = v->netmin;
+
+  // traverse upwards till root
+  while (v->bparent != nullptr) {
+    if (v->external==false){
+        min_value += v->netmin;
+    }
+    v = v->bparent;
+  }
+
+  return min_value;
+}
+
+int ST_Tree::pcost(int v){
+    ST_Node* u = vertices[v];
+
+    // deepest node that is the left child of its parent
+    ST_Node* deepest_left = nullptr;
+    ST_Node* current = u;
+    while (current->bparent) {
+        if (current->bparent->bleft == current) {  
+            deepest_left = current->bparent;
+            break;
+        }
+        current = current->bparent;
+    }
+
+    return grosscost(deepest_left->bparent);
+}
+
+// TODO - visualise graph - menu modification system?
