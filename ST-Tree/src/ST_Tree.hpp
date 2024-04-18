@@ -33,6 +33,9 @@ class ST_Tree
         std::map<int, int> dcost; // cost of dashed edge  --  not handled
 
 
+        // Helper Functions
+        bool get_reversal_state(ST_Node* v);
+
         // Elementary Path operations
         // Static Operations
 

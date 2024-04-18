@@ -94,6 +94,11 @@ std::tuple<ST_Node*, ST_Node*, double> ST_Tree::destroy (ST_Node* u) // Destroy 
     if (!u->bright->external)
         u->bright->netmin += u->netmin;
 
+    if (u->reversed) // if the node I am destroying is reversed, then reverse both children
+    {
+        u->bright->reversed = !u->bright->reversed;
+        u->bleft->reversed = !u->bleft->reversed;
+    }
 
     // remove references to u and delete u
     u->bleft->bparent = nullptr;
@@ -283,6 +288,17 @@ double ST_Tree::cut(int v) // Divide the tree into two by breaking at vertex v  
     return y;
 }
 
+bool ST_Tree::get_reversal_state(ST_Node* v)
+{
+    bool rev = v->reversed;
+    while (v->bparent)
+    {
+        v = v->bparent;
+        rev = rev ^ v->reversed;
+    }
+    return rev;
+}
+
 int ST_Tree::before(int v) { // returns the vertex before v on path(v), if v is the tail return null -- reversed not considered
     ST_Node* u = vertices[v];
 
@@ -306,7 +322,7 @@ int ST_Tree::before(int v) { // returns the vertex before v on path(v), if v is 
 
     // rightmost external descendant 
     if (deepest_right) {
-        return deepest_right->bleft->btail->vertex_id;
+        return get_reversal_state(deepest_right->bleft) ?  deepest_right->bleft->bhead->vertex_id : deepest_right->bleft->btail->vertex_id;
     }
 
     return -1;
@@ -329,6 +345,9 @@ int ST_Tree::after(int v) { // returns the vertex after v on path(v), if v is th
     // rightmost external descendant 
     if (deepest_left) {
         return deepest_left->bright->bhead->vertex_id;
+    }
+    if (deepest_left) {
+        return get_reversal_state(deepest_left->bright) ?  deepest_left->bright->btail->vertex_id : deepest_left->bright->bhead->vertex_id;
     }
 
     return -1;
