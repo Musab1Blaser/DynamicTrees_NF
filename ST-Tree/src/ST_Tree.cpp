@@ -91,7 +91,7 @@ std::tuple<ST_Node*, ST_Node*, double> ST_Tree::destroy (ST_Node* u) // Destroy 
     // Update costs of children
     if (!u->bleft->external)
         u->bleft->netmin += u->netmin;
-    if (!u->bleft->external)
+    if (!u->bright->external)
         u->bright->netmin += u->netmin;
 
 
@@ -384,6 +384,7 @@ std::vector<std::vector<int>> ST_Tree::getAllGraphs(){
 std::vector<std::vector<int>> ST_Tree::getAllEdges(){
     std::vector<std::vector<int>> edges;
     std::vector<std::vector<int>> graphs = getAllGraphs();
+    std::cout << "Internal Paths:\n";
     for (std::vector<int> graph : graphs){
         for (int i = 0; i < graph.size() - 1; i++){
             std::cout << graph[i] << " " << graph[i+1] << std::endl;

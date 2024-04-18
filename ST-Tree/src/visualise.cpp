@@ -5,6 +5,7 @@ void GraphManager::displayCombinedGraph(std::vector<std::vector<int>> bold_edges
     
     std::ofstream dot_file("combined_graph.dot");
     dot_file << "graph G {\n";
+    
     // Write bold edges
     for (const auto& edge : bold_edges) {
         dot_file << edge[0] << " -- " << edge[1] << " [style=bold";
@@ -16,10 +17,15 @@ void GraphManager::displayCombinedGraph(std::vector<std::vector<int>> bold_edges
     //     dot_file << boost::source(*ei, g) << " -> " << boost::target(*ei, g) << ";\n";
     // }
     // dot_file << "}\n";
+
     for (const auto& edge : dashed_edges) {
         dot_file << edge[0] << " -- " << edge[1] << " [style=dashed";
         dot_file << ", label=" << edge[2]<< "];\n";
     }
+    
+    // Create vertices
+    for (int i = 1; i <= vertices; i++)
+        dot_file << i << "; \n";
     dot_file << "}\n";
 
     // Close the file
