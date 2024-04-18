@@ -58,12 +58,12 @@ void ST_Tree::construct(ST_Node* v, ST_Node* w, double x) // Create a new node c
     // Handle left node
     u->bleft = v;
     v->bparent = u;
-    u->bhead = v->bhead;
+    u->bhead = vertices[head(v)];
     
     // Handle right node
     u->bright = w;
     w->bparent = u; 
-    u->btail = w->btail;
+    u->btail = vertices[tail(w)];
 
     // update costs
     // update netmin
@@ -108,17 +108,17 @@ std::tuple<ST_Node*, ST_Node*, double> ST_Tree::destroy (ST_Node* u) // Destroy 
     return result;
 }
 
-void ST_Tree::rotate(ST_Node* v, bool& rev)
+void ST_Tree::rotate(ST_Node* v)
 {
     if (v->bparent)
     {
         ST_Node* u = v->bparent;
-        if (rev)
+        if (v->reversed)
         {
             v->reversed = !v->reversed;
             ST_Node* tmp = v->bhead;
             v->bhead = v->btail;
-            v->btail = v->bhead;
+            v->btail = tmp;
             
             tmp = v->bleft;
             v->bleft = v->bright;
@@ -126,8 +126,6 @@ void ST_Tree::rotate(ST_Node* v, bool& rev)
 
             if (!v->bleft->external) v->bleft->reversed = !v->bleft->reversed;
             if (!v->bright->external) v->bright->reversed = !v->bright->reversed;
-
-            rev = false;
         }
 
         
@@ -217,8 +215,6 @@ void ST_Tree::rotate(ST_Node* v, bool& rev)
 
         v->bhead = v->bleft->bhead;
         v->btail = v->bright->btail;
-        
-        rev ^= u->reversed;
 
         bool tmp = u->reversed;
         u->reversed = v->reversed;
@@ -244,13 +240,13 @@ std::tuple<ST_Node*, ST_Node*, double, double> ST_Tree::split(int v) // Break a 
         ST_Node* cur = vNode->bparent; // Find an edge connected to me
         bool cur_rev = get_reversal_state(cur);
         while (cur->bparent) // rotate edge to top to prepare for deletion
-            rotate(cur, cur_rev); 
+            rotate(cur); 
 
         // store whether left edge or right edge in path
-        if (cur->bleft->btail == vNode) // if i am in left, then the path being separated is from me to above - after(v) to tail(path)
-            q = cur->bright, y = cur->netcost + cur->netmin;
-        else if (cur->bright->bhead == vNode) // if i am in right, then the path being separated is from me to bottom - from head(path) to before(v)
-            p = cur->bleft, x = cur->netcost + cur->netmin;
+        if ((!cur->reversed && tail(cur->bleft) == v) || (cur->reversed && head(cur->bright) == v)) // if i am in left, then the path being separated is from me to above - after(v) to tail(path)
+            q = (cur->reversed) ? cur->bleft : cur->bright, y = cur->netcost + cur->netmin;
+        else if ((!cur->reversed && head(cur->bright) == v) || (cur->reversed && tail(cur->bleft) == v)) // if i am in right, then the path being separated is from me to bottom - from head(path) to before(v)
+            p = (cur->reversed) ? cur->bright : cur->bleft, x = cur->netcost + cur->netmin;
 
         destroy(cur); // delete edge
     }
@@ -331,25 +327,26 @@ int ST_Tree::before(int v) { // returns the vertex before v on path(v), if v is 
     ST_Node* deepest_right = nullptr;
     ST_Node* current = u;
     bool rev = false;
-    while (current->bparent) {
-        rev = get_reversal_state(current->bparent);
-        if ((current->bparent->bright == current) ^ rev) {  
-            deepest_right = current->bparent;
-            break;
+    if (current->bparent)
+    {
+        rev = get_reversal_state(current);
+        while (current->bparent) 
+        {
+            rev ^= current->reversed;
+            if ((current->bparent->bright == current) ^ rev) {  
+                deepest_right = current->bparent;
+                break;
+            }
+            current = current->bparent;
         }
-        current = current->bparent;
-        rev ^= current->reversed;
     }
 
     // rightmost external descendant of left sibling
     if (deepest_right) {
-        return get_reversal_state(deepest_right->bleft) ?  deepest_right->bleft->bhead->vertex_id : deepest_right->bleft->btail->vertex_id;
-    }
-    if (deepest_right) {
         if (rev)
-            return (rev ^ deepest_right->bright->reversed) ? deepest_right->bright->btail->vertex_id : deepest_right->bleft->bhead->vertex_id; 
+            return head(deepest_right->bright); 
         else
-            return (rev ^ deepest_right->bleft->reversed) ? deepest_right->bleft->bhead->vertex_id : deepest_right->bleft->btail->vertex_id;
+            return tail(deepest_right->bleft);
     }
 
     return -1;
@@ -364,23 +361,23 @@ int ST_Tree::after(int v) { // returns the vertex after v on path(v), if v is th
     bool rev = false;
     if (current->bparent)
     {
-        rev = get_reversal_state(current->bparent);
+        rev = get_reversal_state(current);
         while (current->bparent) {
+            rev ^= current->reversed;
             if ((current->bparent->bleft == current) ^ rev) {  
                 deepest_left = current->bparent;
                 break;
             }
             current = current->bparent;
-            rev ^= current->reversed;
         }
     }
 
     // leftmost external descendant of right sibling
     if (deepest_left) {
         if (rev)
-            return (rev ^ deepest_left->bleft->reversed) ? deepest_left->bleft->btail->vertex_id : deepest_left->bleft->bhead->vertex_id; 
+            return tail(deepest_left->bleft); 
         else
-            return (rev ^ deepest_left->bright->reversed) ? deepest_left->bright->bhead->vertex_id : deepest_left->bright->btail->vertex_id;
+            return head(deepest_left->bright);
     }
 
     return -1;
@@ -438,7 +435,7 @@ std::vector<std::vector<int>> ST_Tree::getAllEdges(){
         std::cout << graph[0];
         for (int i = 0; i < graph.size() - 1; i++){
             std::cout << " " << graph[i+1];
-            std::vector<int> edge = {graph[i], graph[i+1], 1};
+            std::vector<int> edge = {graph[i], graph[i+1], (int) cost(graph[i+1])};
             edges.push_back(edge);
         }
         std::cout << std::endl;
@@ -450,7 +447,7 @@ std::vector<std::vector<int>> ST_Tree::getAllDashEdges(){
     std::vector<std::vector<int>> edges;
     for (const auto &[u, v] : dparent){
         if (v!=-1){
-            std::vector<int> edge = {v, u, 2};
+            std::vector<int> edge = {v, u, (int) dcost[u]};
             edges.push_back(edge);
         }
     }

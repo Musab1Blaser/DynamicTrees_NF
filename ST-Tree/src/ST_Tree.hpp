@@ -15,7 +15,7 @@ struct ST_Node // Nodes of underlying tree - can represent vertices or edges of 
     ST_Node *bhead, *btail; // bottom-most and top-most nodes in path 
     
     // External node/vertex constructor
-    ST_Node(bool ext, int vert) : external{ext}, vertex_id{vert}, bparent{nullptr}, bhead{this}, bleft{this}, bright{this}, btail{this} {}; 
+    ST_Node(bool ext, int vert) : external{ext}, vertex_id{vert}, bparent{nullptr}, bhead{this}, bleft{this}, bright{this}, btail{this}, reversed{false} {}; 
 
     bool reversed; //to determine if reverse has occured
     double netmin; 
@@ -60,7 +60,7 @@ class ST_Tree
         void construct(ST_Node* v, ST_Node* w, double x);  // Create a new node corresponding to an edge connecting the two paths represented by v and w  --  cost not handled
         std::tuple<ST_Node*, ST_Node*, double> destroy (ST_Node* u);  // Destroy the root of the tree, breaking it into two trees/represented paths --  cost not handled
         
-        void rotate(ST_Node* v, bool& rev); // rotate a node (representing an edge) upwards
+        void rotate(ST_Node* v); // rotate a node (representing an edge) upwards
 
         // possibly unnecessary:
         // void rotateleft(ST_Node* v);  // To implement
