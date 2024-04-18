@@ -1,30 +1,106 @@
+#include "visualise.hpp"
 #include "ST_Tree.hpp"
+#include <iostream>
+#include <string>
+#include <vector>
+
+
+void displayGraph(GraphManager g, ST_Tree ST, std::string filename)
+{
+    std::vector<std::vector<int> > boldEdges = ST.getAllEdges(); // get all bold edges
+    std::vector<std::vector<int> > dashedEdges = ST.getAllDashEdges(); // get all dashed edges
+    g.displayCombinedGraph(boldEdges, dashedEdges, filename); // display the graph
+}
+
 
 int main()
 {
-    // tree to represent:
-    // std::map<int, int> treePar = {{2, 1}, {6, 5}, {4, 2}, {5, 2}, {3, 1}};
+    int nodes;
+    std::cout << "How many nodes do you want in the Graph: ";
+    std::cin >> nodes;
 
-    //       1
-    //     /   \
-    //    3     2
-    //        /   \
-    //       4     5
-    //              \
-    //               6
+    ST_Tree ST = ST_Tree(nodes); // Initialise ST-Tree with 6 nodes numbered 1, 2, ..., 6
+    GraphManager graph_manager(nodes);
 
-    ST_Tree ST = ST_Tree(6); // Initialise ST-Tree with 6 nodes numbered 1, 2, ..., 6
-    ST.link(2, 1, 0); // make 1 the parent of 2
-    ST.link(6, 5, 0); // make 5 the parent of 6
-    ST.link(4, 2, 0); // make 2 the parent of 4
-    ST.link(5, 2, 0); // make 2 the parent of 5 - makes 2-4 connection dashed
-    std::cout << ST.parent(1) << " " << ST.parent(2) << " " << ST.parent(5) << " " << ST.parent(6) << std::endl; //showing the parent of each node
-    ST.link(3, 1, 0); // make 1 the parent of 3 - makes 1-2 connection dashed;
-    //to verify dashed edges, printing the parent of 4 and 2 aswell
-    std::cout << ST.parent(4) << " " << ST.parent(2) << std::endl;
+    ST.link(2, 1, 0);
+    ST.link(6, 5, 0);
+    ST.link(4, 2, 0);
+    ST.link(5, 2, 0);
+    // ST.link(3, 1, 0);
     
-    // can also directly initialise - gives slightly different output as links added in sorted order, instead of provided order
-    // ST_Tree ST = ST_Tree(treePar, 6);
+    int op_num = 0;
+    std::string opt {"_"};
+    while (opt.size())
+    {
+        // List of Operations
+        printf("\
+Select the operation format you wish to use:\n\
+1) parent v - returns the parent of v\n\
+2) root v - return the root of the tree containing v\n\
+3) cost v - return the cost of the edge (v, parent(v))\n\
+4) mincost v - return the vertex w closest to root(v) with minimum edge cost on the path from v to root(v)\n\
+5) update v x - Add x to all edges on the path from root(v) to v\n\
+6) link a b w - Makes b parent of a with edge of weight w\n\
+7) cut v - Divide the tree containing v into two trees by removing edge (v, parent(v))\n\
+8) evert v - make v the root of the tree containing v\n");
 
-    ST.cut(2); // break tree edge par(2)-2 -> result 1.3 and 4.2.5-6 (. signifies dashed edge) 
+        std::cin >> opt;
+        // Tree Operations
+        // Tree Queries
+        if (opt == "parent")
+        {
+            int v;
+            std::cin >> v;
+            std::cout << "Result is: " << ST.parent(v) << std::endl;
+        }
+        else if (opt == "root")
+        {
+            int v;
+            std::cin >> v;
+            std::cout << "Result is: " << ST.root(v) << std::endl;
+        }
+        else if (opt == "cost")
+        {
+            int v;
+            std::cin >> v;
+            std::cout << "Not implemented" << std::endl;
+            // std::cout << "Result is: " << ST.cost(v) << std::endl;
+        }
+        else if (opt == "mincost")
+        {
+            int v;
+            std::cin >> v;
+            std::cout << "Not implemented" << std::endl;
+            // std::cout << "Result is: " << ST.mincost(v) << std::endl;
+        }
+        // Tree Operations
+        else if (opt == "update")
+        {
+            int v, x;
+            std::cin >> v >> x;
+            std::cout << "Not implemented" << std::endl;
+            // ST.update(v, x);
+        }
+        else if (opt == "link")
+        {
+            int a, b, w;
+            std::cin >> a >> b >> w;
+            ST.link(a, b, w);
+        }
+        else if (opt == "cut")
+        {
+            int v;
+            std::cin >> v;
+            ST.cut(v);
+        }
+        else if (opt == "evert")
+        {
+            int v;
+            std::cin >> v;
+            std::cout << "Not implemented" << std::endl;
+            // ST.evert(v);
+        }
+        
+        displayGraph(graph_manager, ST, "graph_results/"+std::to_string(++op_num)); // display the graph
+    }
 }

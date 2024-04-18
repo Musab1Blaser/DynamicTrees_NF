@@ -1,5 +1,6 @@
 #include "ST_Tree.hpp"
-#include <set>
+#include <algorithm>
+
 
 // Constructors
 ST_Tree::ST_Tree(std::map<int, int>& treePar, int n) // Construct based on input tree/forest and number of nodes (named 1 to n)
@@ -159,9 +160,10 @@ ST_Node* ST_Tree::splice(ST_Node* p) // Extend current bold path upwards by conv
     auto [q, r, x, y] = split(v); // r is path to root
     if (q) dparent[tail(q)] = v; // q is other downward path - make it dashed
     
+    dparent[tail(p)] = -1; // dashed edge removed
     p = concatenate(p, path(v), 0); // connect me to the node above me
     if (r) // if more nodes on way to root
-        return concatenate(p,r,0); // connect me to the path to root
+        return concatenate(p, r, y); // connect me to the path above v
     else // no path to root
         return p;
 }
@@ -181,7 +183,7 @@ ST_Node* ST_Tree::expose(int v) // Create bold path from this node to root of tr
     // if not connected to root then keep connecting upwards
     while (dparent[tail(p)] != -1)
         p = splice(p);
-
+    
     return p;
 }
 
@@ -262,6 +264,66 @@ int ST_Tree::parent(int v){
 int ST_Tree::root(int v){
     return tail(expose(v));
 }
+
+// TODO - visualise graph - menu modification system?
+std::vector<ST_Node*> ST_Tree::getAllUniquePaths(){
+    std::map <ST_Node*, int> paths;
+    for ( int i = vertices.size(); i > 0; i--){
+        ST_Node* p = path(i);
+        if (paths.find(p) == paths.end())
+            paths[p] = 1;
+    };
+    std::vector<ST_Node*> uniquePaths;
+    for (auto const& [key, val] : paths)
+        uniquePaths.push_back(key);
+    return uniquePaths;
+}
+
+std::vector<std::vector<int>> ST_Tree::getAllGraphs(){
+    std::vector<std::vector<int>> graphs;
+    std::vector<ST_Node*> paths = getAllUniquePaths();
+    for (ST_Node* p : paths){
+        std::vector<int> graph;
+        ST_Node* cur = p->bhead;
+        int cur_val = cur->vertex_id;
+        while (cur_val != p->btail->vertex_id)
+        {
+            graph.push_back(cur_val);
+            cur_val = after(cur_val);
+        }
+        graph.push_back(cur_val);
+        if (!cur->reversed){
+            std::reverse(graph.begin(), graph.end());
+        }
+        graphs.push_back(graph);
+    }
+    return graphs;
+}
+
+std::vector<std::vector<int>> ST_Tree::getAllEdges(){
+    std::vector<std::vector<int>> edges;
+    std::vector<std::vector<int>> graphs = getAllGraphs();
+    for (std::vector<int> graph : graphs){
+        for (int i = 0; i < graph.size() - 1; i++){
+            std::cout << graph[i] << " " << graph[i+1] << std::endl;
+            std::vector<int> edge = {graph[i], graph[i+1], 0};
+            edges.push_back(edge);
+        }
+    }
+    return edges;
+};
+
+std::vector<std::vector<int>> ST_Tree::getAllDashEdges(){
+    std::vector<std::vector<int>> edges;
+    for (const auto &[u, v] : dparent){
+        if (v!=-1){
+            std::vector<int> edge = {v, u, 1};
+            edges.push_back(edge);
+        }
+    }
+    return edges;
+};
+
 
 int ST_Tree::grosscost(ST_Node* v){
     return ((v->netcost) + (grossmin(v)));
