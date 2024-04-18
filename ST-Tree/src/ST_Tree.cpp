@@ -108,11 +108,29 @@ std::tuple<ST_Node*, ST_Node*, double> ST_Tree::destroy (ST_Node* u) // Destroy 
     return result;
 }
 
-void ST_Tree::rotate(ST_Node* v)
+void ST_Tree::rotate(ST_Node* v, bool& rev)
 {
     if (v->bparent)
     {
         ST_Node* u = v->bparent;
+        if (rev)
+        {
+            v->reversed = !v->reversed;
+            ST_Node* tmp = v->bhead;
+            v->bhead = v->btail;
+            v->btail = v->bhead;
+            
+            tmp = v->bleft;
+            v->bleft = v->bright;
+            v->bright = tmp;
+
+            if (!v->bleft->external) v->bleft->reversed = !v->bleft->reversed;
+            if (!v->bright->external) v->bright->reversed = !v->bright->reversed;
+
+            rev = false;
+        }
+
+        
         if (u->bright == v) // rotate left
         {
             // give v's left child
@@ -199,6 +217,12 @@ void ST_Tree::rotate(ST_Node* v)
 
         v->bhead = v->bleft->bhead;
         v->btail = v->bright->btail;
+        
+        rev ^= u->reversed;
+
+        bool tmp = u->reversed;
+        u->reversed = v->reversed;
+        v->reversed = tmp;
     }
 }
 
@@ -218,8 +242,9 @@ std::tuple<ST_Node*, ST_Node*, double, double> ST_Tree::split(int v) // Break a 
     while (vNode->bparent) // while there are edges connected to me in the path
     {
         ST_Node* cur = vNode->bparent; // Find an edge connected to me
+        bool cur_rev = get_reversal_state(cur);
         while (cur->bparent) // rotate edge to top to prepare for deletion
-            rotate(cur); 
+            rotate(cur, cur_rev); 
 
         // store whether left edge or right edge in path
         if (cur->bleft->btail == vNode) // if i am in left, then the path being separated is from me to above - after(v) to tail(path)
@@ -344,9 +369,6 @@ int ST_Tree::after(int v) { // returns the vertex after v on path(v), if v is th
 
     // rightmost external descendant 
     if (deepest_left) {
-        return deepest_left->bright->bhead->vertex_id;
-    }
-    if (deepest_left) {
         return get_reversal_state(deepest_left->bright) ?  deepest_left->bright->btail->vertex_id : deepest_left->bright->bhead->vertex_id;
     }
 
@@ -384,17 +406,14 @@ std::vector<std::vector<int>> ST_Tree::getAllGraphs(){
     std::vector<ST_Node*> paths = getAllUniquePaths();
     for (ST_Node* p : paths){
         std::vector<int> graph;
-        ST_Node* cur = p->bhead;
-        int cur_val = cur->vertex_id;
-        while (cur_val != p->btail->vertex_id)
+        int cur_val = head(p);
+        while (cur_val != tail(p))
         {
             graph.push_back(cur_val);
             cur_val = after(cur_val);
         }
         graph.push_back(cur_val);
-        if (!cur->reversed){
-            std::reverse(graph.begin(), graph.end());
-        }
+        std::reverse(graph.begin(), graph.end());
         graphs.push_back(graph);
     }
     return graphs;

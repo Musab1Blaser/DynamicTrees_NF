@@ -60,7 +60,7 @@ class ST_Tree
         void construct(ST_Node* v, ST_Node* w, double x);  // Create a new node corresponding to an edge connecting the two paths represented by v and w  --  cost not handled
         std::tuple<ST_Node*, ST_Node*, double> destroy (ST_Node* u);  // Destroy the root of the tree, breaking it into two trees/represented paths --  cost not handled
         
-        void rotate(ST_Node* v); // rotate a node (representing an edge) upwards
+        void rotate(ST_Node* v, bool& rev); // rotate a node (representing an edge) upwards
 
         // possibly unnecessary:
         // void rotateleft(ST_Node* v);  // To implement

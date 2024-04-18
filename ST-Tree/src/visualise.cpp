@@ -4,11 +4,11 @@
 void GraphManager::displayCombinedGraph(std::vector<std::vector<int>> bold_edges, std::vector<std::vector<int>> dashed_edges, std::string filename) {
     
     std::ofstream dot_file("combined_graph.dot");
-    dot_file << "graph G {\n";
+    dot_file << "digraph G {\n";
     
     // Write bold edges
     for (const auto& edge : bold_edges) {
-        dot_file << edge[0] << " -- " << edge[1] << " [style=bold";
+        dot_file << edge[0] << " -> " << edge[1] << " [style=bold";
         dot_file << ", label=" << edge[2]<< "];\n";
     }
     // boost::write_graphviz(dot_file, g);
@@ -19,7 +19,7 @@ void GraphManager::displayCombinedGraph(std::vector<std::vector<int>> bold_edges
     // dot_file << "}\n";
 
     for (const auto& edge : dashed_edges) {
-        dot_file << edge[0] << " -- " << edge[1] << " [style=dashed";
+        dot_file << edge[0] << " -> " << edge[1] << " [style=dashed";
         dot_file << ", label=" << edge[2]<< "];\n";
     }
     
