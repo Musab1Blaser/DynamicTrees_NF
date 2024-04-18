@@ -327,27 +327,29 @@ bool ST_Tree::get_reversal_state(ST_Node* v)
 int ST_Tree::before(int v) { // returns the vertex before v on path(v), if v is the tail return null -- reversed not considered
     ST_Node* u = vertices[v];
 
-    //ST_Node* current = u;
-    // while (current->bparent) {
-    //     if (current->bparent->reversed)
-    //         current->reversed = !current->reversed;
-    //     current = current->bparent;
-    // }
-
     // deepest node that is the right child of its parent
     ST_Node* deepest_right = nullptr;
     ST_Node* current = u;
+    bool rev = false;
     while (current->bparent) {
-        if (current->bparent->bright == current) {  
+        rev = get_reversal_state(current->bparent);
+        if ((current->bparent->bright == current) ^ rev) {  
             deepest_right = current->bparent;
             break;
         }
         current = current->bparent;
+        rev ^= current->reversed;
     }
 
-    // rightmost external descendant 
+    // rightmost external descendant of left sibling
     if (deepest_right) {
         return get_reversal_state(deepest_right->bleft) ?  deepest_right->bleft->bhead->vertex_id : deepest_right->bleft->btail->vertex_id;
+    }
+    if (deepest_right) {
+        if (rev)
+            return (rev ^ deepest_right->bright->reversed) ? deepest_right->bright->btail->vertex_id : deepest_right->bleft->bhead->vertex_id; 
+        else
+            return (rev ^ deepest_right->bleft->reversed) ? deepest_right->bleft->bhead->vertex_id : deepest_right->bleft->btail->vertex_id;
     }
 
     return -1;
@@ -359,17 +361,26 @@ int ST_Tree::after(int v) { // returns the vertex after v on path(v), if v is th
     // deepest node that is the left child of its parent
     ST_Node* deepest_left = nullptr;
     ST_Node* current = u;
-    while (current->bparent) {
-        if (current->bparent->bleft == current) {  
-            deepest_left = current->bparent;
-            break;
+    bool rev = false;
+    if (current->bparent)
+    {
+        rev = get_reversal_state(current->bparent);
+        while (current->bparent) {
+            if ((current->bparent->bleft == current) ^ rev) {  
+                deepest_left = current->bparent;
+                break;
+            }
+            current = current->bparent;
+            rev ^= current->reversed;
         }
-        current = current->bparent;
     }
 
-    // rightmost external descendant 
+    // leftmost external descendant of right sibling
     if (deepest_left) {
-        return get_reversal_state(deepest_left->bright) ?  deepest_left->bright->btail->vertex_id : deepest_left->bright->bhead->vertex_id;
+        if (rev)
+            return (rev ^ deepest_left->bleft->reversed) ? deepest_left->bleft->btail->vertex_id : deepest_left->bleft->bhead->vertex_id; 
+        else
+            return (rev ^ deepest_left->bright->reversed) ? deepest_left->bright->bhead->vertex_id : deepest_left->bright->btail->vertex_id;
     }
 
     return -1;
@@ -427,7 +438,7 @@ std::vector<std::vector<int>> ST_Tree::getAllEdges(){
         std::cout << graph[0];
         for (int i = 0; i < graph.size() - 1; i++){
             std::cout << " " << graph[i+1];
-            std::vector<int> edge = {graph[i], graph[i+1], (int) pcost(graph[i+1])};
+            std::vector<int> edge = {graph[i], graph[i+1], 1};
             edges.push_back(edge);
         }
         std::cout << std::endl;
@@ -439,7 +450,7 @@ std::vector<std::vector<int>> ST_Tree::getAllDashEdges(){
     std::vector<std::vector<int>> edges;
     for (const auto &[u, v] : dparent){
         if (v!=-1){
-            std::vector<int> edge = {v, u, dcost[u]};
+            std::vector<int> edge = {v, u, 2};
             edges.push_back(edge);
         }
     }
