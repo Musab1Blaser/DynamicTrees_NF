@@ -480,12 +480,25 @@ double ST_Tree::pcost(int v){
     // deepest node that is the left child of its parent
     ST_Node* deepest_left = nullptr;
     ST_Node* current = u;
+    bool rev = get_reversal_state(current->bparent);
     while (current->bparent) {
-        if (current->bparent->bleft == current) {  
+        if (!rev){
+            if (current->bparent->bleft == current) {  
             deepest_left = current;
             break;
-        }
+            }
         current = current->bparent;
+        rev ^= current->reversed;
+        }
+        else{
+            if (current->bparent->bright == current) {  
+            deepest_left = current;
+            break;
+            }
+        current = current->bparent;
+        rev ^= current->reversed;
+        }
+
     }
 
     return grosscost(deepest_left->bparent);
@@ -494,12 +507,25 @@ double ST_Tree::pcost(int v){
 double ST_Tree::pmincost(ST_Node* p){
     ST_Node* u = p;
 
+    bool rev = get_reversal_state(u);
     while (u->netcost !=0 and (u->bright->external or u->bright->netmin >=0)){
-        if (!u->bright->external and u->bright->netcost==0){
+        if (!rev){
+            if (!u->bright->external and u->bright->netcost==0){
             u = u->bright;
+            }
+            else if (u->netcost > 0){
+                u = u->bleft;
+            }
+            rev ^= u->reversed;
         }
-        else if (u->netcost > 0){
+        else{
+            if (!u->bleft->external and u->bleft->netcost==0){
             u = u->bleft;
+            }
+            else if (u->netcost > 0){
+                u = u->bright;
+            }
+            rev ^= u->reversed;
         }
     }
 
