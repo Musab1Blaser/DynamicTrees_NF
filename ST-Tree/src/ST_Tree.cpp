@@ -382,7 +382,7 @@ void ST_Tree::reverse(ST_Node* p){
 }
 
 double ST_Tree::cost(int v){
-    if (v=tail(path(v))){
+    if (v==tail(path(v))){
         return dcost[v];
     }
     else{
