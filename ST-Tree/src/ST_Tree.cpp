@@ -67,27 +67,20 @@ void ST_Tree::construct(ST_Node* v, ST_Node* w, double x) // Create a new node c
 
     // update costs
     // update netmin
-    double nmin;
-    nmin = x;
+    u->netmin = x;
     if (!u->bleft->external)
-        nmin = std::min(nmin, u->bleft->netmin);
+        u->netmin = std::min(u->netmin, u->bleft->netmin);
     if (!u->bright->external)
-        nmin = std::min(nmin, u->bright->netmin);
-    
+        u->netmin = std::min(u->netmin, u->bright->netmin);
+
     // update netcost
-    double ncost;
-    double gcost = x;
-    if (!u->bleft->external)
-        gcost += u->bleft->netcost + u->bleft->netmin;
-    if (!u->bright->external)
-        gcost += u->bright->netcost + u->bleft->netmin;
-    ncost = gcost - nmin;
+    u->netcost = x - u->netmin;
 
     // update children
     if (!u->bleft->external)
-        u->bleft->netmin -= nmin; 
+        u->bleft->netmin -= u->netmin; 
     if (!u->bright->external)
-        u->bright->netmin -= nmin; 
+        u->bright->netmin -= u->netmin; 
 }
 
 std::tuple<ST_Node*, ST_Node*, double> ST_Tree::destroy (ST_Node* u) // Destroy the root of the tree, breaking it into two trees/represented paths -> return (path1, path2, edge1cost, edge2cost) - edge1, edge2 are the edges broken --  cost not handled
@@ -128,6 +121,32 @@ void ST_Tree::rotate(ST_Node* v)
             v->bleft = u;
             u->bparent = v;
 
+            // update costs
+            double orig_v_nmin = v->netmin;
+            // update v - right child
+            if (!v->bright->external)
+                v->bright->netmin += v->netmin;
+            // update v - the child rotate up
+            v->netcost += v->netmin;
+            v->netmin = u->netmin;
+
+            // update rotate parent
+            u->netmin = u->netcost;
+            if (!u->bleft->external)
+                u->netmin = std::min(u->netmin, u->bleft->netmin);
+            if (!u->bright->external)
+                u->netmin = std::min(u->netmin, u->bright->netmin);
+            u->netcost -= u->netmin;
+
+            // update rotated parents children
+            if (!u->bleft->external)
+                u->bleft->netmin -= u->netmin;
+            if (!u->bright->external)
+                if (orig_v_nmin)
+                    u->bright->netmin += orig_v_nmin;
+                else
+                    u->bright->netmin -= u->netmin;
+            
         }
         else
         {
@@ -142,7 +161,31 @@ void ST_Tree::rotate(ST_Node* v)
             v->bright = u;
             u->bparent = v;
 
+            // update costs
+            double orig_v_nmin = v->netmin;
+            // update v - lef child
+            if (!v->bleft->external)
+                v->bleft->netmin += v->netmin;
+            // update v - the child rotate up
+            v->netcost += v->netmin;
+            v->netmin = u->netmin;
 
+            // update rotate parent
+            u->netmin = u->netcost;
+            if (!u->bleft->external)
+                u->netmin = std::min(u->netmin, u->bleft->netmin);
+            if (!u->bright->external)
+                u->netmin = std::min(u->netmin, u->bright->netmin);
+            u->netcost -= u->netmin;
+
+            // update rotated parents children
+            if (!u->bright->external)
+                u->bright->netmin -= u->netmin;
+            if (!u->bleft->external)
+                if (orig_v_nmin)
+                    u->bleft->netmin += orig_v_nmin;
+                else
+                    u->bleft->netmin -= u->netmin;
         }
 
         // update head and tail
