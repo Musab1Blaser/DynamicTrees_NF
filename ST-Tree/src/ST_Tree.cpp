@@ -319,26 +319,26 @@ void ST_Tree::reverse(ST_Node* p){
     p->reversed = !p->reversed;
 }
 
-double cost(int v){
+double ST_Tree::cost(int v){
     if (v=tail(path(v))){
-        return dcost(v);
+        return dcost[v];
     }
     else{
         pcost(v);
     }
 }
 
-double mincost(int v){
+double ST_Tree::mincost(int v){
     return pmincost(expose(v));
 }
 
-void update(int v, double x){
-    return pudate(expose(v), x)
+void ST_Tree::update(int v, double x){
+    return pupdate(expose(v), x);
 }
 
-void evert(int v){
+void ST_Tree::evert(int v){
     reverse(expose(v));
-    dparent(v) = nullptr;
+    dparent[v] = -1;
 }
 
 // TODO - visualise graph - menu modification system?
