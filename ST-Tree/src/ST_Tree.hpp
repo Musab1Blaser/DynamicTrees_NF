@@ -22,7 +22,7 @@ struct ST_Node // Nodes of underlying tree - can represent vertices or edges of 
     double netcost; //cost
 
     // Internal node/edge constructor
-    ST_Node (bool ext, ST_Node* par, bool rev, int netmi, int netcst) : external{ext}, vertex_id{-1}, bparent{par}, reversed{rev}, netmin{netmi}, netcost{netcst} {};
+    ST_Node (bool ext, ST_Node* par, bool rev, double netmi, double netcst) : external{ext}, vertex_id{-1}, bparent{par}, reversed{rev}, netmin{netmi}, netcost{netcst} {};
 };
 
 class ST_Tree

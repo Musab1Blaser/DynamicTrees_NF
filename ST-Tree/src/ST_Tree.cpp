@@ -218,9 +218,9 @@ std::tuple<ST_Node*, ST_Node*, double, double> ST_Tree::split(int v) // Break a 
 
         // store whether left edge or right edge in path
         if (cur->bleft->btail == vNode) // if i am in left, then the path being separated is from me to above - after(v) to tail(path)
-            q = cur->bright, y = 0;
+            q = cur->bright, y = cur->netcost + cur->netmin;
         else if (cur->bright->bhead == vNode) // if i am in right, then the path being separated is from me to bottom - from head(path) to before(v)
-            p = cur->bleft, x = 0;
+            p = cur->bleft, x = cur->netcost + cur->netmin;
 
         destroy(cur); // delete edge
     }
@@ -232,10 +232,14 @@ ST_Node* ST_Tree::splice(ST_Node* p) // Extend current bold path upwards by conv
 {
     int v = dparent[tail(p)]; // find node above me outside my path
     auto [q, r, x, y] = split(v); // r is path to root
-    if (q) dparent[tail(q)] = v; // q is other downward path - make it dashed
-    
+    if (q) // q is other downward path
+    {
+        dparent[tail(q)] = v; // make it dashed
+        dcost[tail(q)] = x;
+    }
+
     dparent[tail(p)] = -1; // dashed edge removed
-    p = concatenate(p, path(v), 0); // connect me to the node above me
+    p = concatenate(p, path(v), dcost[tail(p)]); // connect me to the node above me
     if (r) // if more nodes on way to root
         return concatenate(p, r, y); // connect me to the path above v
     else // no path to root
@@ -245,8 +249,11 @@ ST_Node* ST_Tree::splice(ST_Node* p) // Extend current bold path upwards by conv
 ST_Node* ST_Tree::expose(int v) // Create bold path from this node to root of tree -- cost not handled
 {
     auto [q, r, x, y] = split(v); // cut me off from anything below
-    if (q) dparent[tail(q)] = v; // if path afer me - then make me its dashed parent
-
+    if (q) // if path afer me
+    {
+        dparent[tail(q)] = v; // then make me its dashed parent
+        dcost[tail(q)] = x;
+    }
     // connect me upwards
     ST_Node* p; 
     if (r)
@@ -380,7 +387,7 @@ std::vector<std::vector<int>> ST_Tree::getAllEdges(){
     for (std::vector<int> graph : graphs){
         for (int i = 0; i < graph.size() - 1; i++){
             std::cout << graph[i] << " " << graph[i+1] << std::endl;
-            std::vector<int> edge = {graph[i], graph[i+1], 0};
+            std::vector<int> edge = {graph[i], graph[i+1], (int) pcost(graph[i+1])};
             edges.push_back(edge);
         }
     }
@@ -391,7 +398,7 @@ std::vector<std::vector<int>> ST_Tree::getAllDashEdges(){
     std::vector<std::vector<int>> edges;
     for (const auto &[u, v] : dparent){
         if (v!=-1){
-            std::vector<int> edge = {v, u, 1};
+            std::vector<int> edge = {v, u, dcost[u]};
             edges.push_back(edge);
         }
     }
@@ -408,8 +415,8 @@ int ST_Tree::grossmin(ST_Node* v){
 
   // traverse upwards till root
   while (v->bparent != nullptr) {
+        v = v->bparent;
         min_value += v->netmin;
-    v = v->bparent;
   }
 
   return min_value;
@@ -423,7 +430,7 @@ double ST_Tree::pcost(int v){
     ST_Node* current = u;
     while (current->bparent) {
         if (current->bparent->bleft == current) {  
-            deepest_left = current->bparent;
+            deepest_left = current;
             break;
         }
         current = current->bparent;

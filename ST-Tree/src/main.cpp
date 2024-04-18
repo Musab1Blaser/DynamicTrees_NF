@@ -22,11 +22,11 @@ int main()
     ST_Tree ST = ST_Tree(nodes); // Initialise ST-Tree with 6 nodes numbered 1, 2, ..., 6
     GraphManager graph_manager(nodes);
 
-    ST.link(2, 1, 0);
-    ST.link(6, 5, 0);
-    ST.link(4, 2, 0);
-    ST.link(5, 2, 0);
-    // ST.link(3, 1, 0);
+    ST.link(2, 1, 4);
+    ST.link(6, 5, 3);
+    ST.link(4, 2, 6);
+    ST.link(5, 2, 9);
+    // ST.link(3, 1, 5);
     
     int op_num = 0;
     std::string opt {"_"};
@@ -78,8 +78,8 @@ Select the operation format you wish to use:\n\
         {
             int v, x;
             std::cin >> v >> x;
-            std::cout << "Not implemented" << std::endl;
-            // ST.update(v, x);
+            // std::cout << "Not implemented" << std::endl;
+            ST.update(v, x);
         }
         else if (opt == "link")
         {
