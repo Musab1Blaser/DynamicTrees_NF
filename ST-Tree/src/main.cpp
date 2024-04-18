@@ -63,15 +63,15 @@ Select the operation format you wish to use:\n\
         {
             int v;
             std::cin >> v;
-            std::cout << "Not implemented" << std::endl;
-            // std::cout << "Result is: " << ST.cost(v) << std::endl;
+            // std::cout << "Not implemented" << std::endl;
+            std::cout << "Result is: " << ST.cost(v) << std::endl;
         }
         else if (opt == "mincost")
         {
             int v;
             std::cin >> v;
-            std::cout << "Not implemented" << std::endl;
-            // std::cout << "Result is: " << ST.mincost(v) << std::endl;
+            // std::cout << "Not implemented" << std::endl;
+            std::cout << "Result is: " << ST.mincost(v) << std::endl;
         }
         // Tree Operations
         else if (opt == "update")
@@ -97,8 +97,8 @@ Select the operation format you wish to use:\n\
         {
             int v;
             std::cin >> v;
-            std::cout << "Not implemented" << std::endl;
-            // ST.evert(v);
+            // std::cout << "Not implemented" << std::endl;
+            ST.evert(v);
         }
         
         displayGraph(graph_manager, ST, "graph_results/"+std::to_string(++op_num)); // display the graph

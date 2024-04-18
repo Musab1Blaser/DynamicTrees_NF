@@ -386,7 +386,7 @@ double ST_Tree::cost(int v){
         return dcost[v];
     }
     else{
-        pcost(v);
+        return pcost(v);
     }
 }
 
