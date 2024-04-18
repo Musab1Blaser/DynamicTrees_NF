@@ -160,9 +160,10 @@ ST_Node* ST_Tree::splice(ST_Node* p) // Extend current bold path upwards by conv
     auto [q, r, x, y] = split(v); // r is path to root
     if (q) dparent[tail(q)] = v; // q is other downward path - make it dashed
     
+    dparent[tail(p)] = -1; // dashed edge removed
     p = concatenate(p, path(v), 0); // connect me to the node above me
     if (r) // if more nodes on way to root
-        return concatenate(p,r,0); // connect me to the path to root
+        return concatenate(p, r, y); // connect me to the path above v
     else // no path to root
         return p;
 }
@@ -182,7 +183,7 @@ ST_Node* ST_Tree::expose(int v) // Create bold path from this node to root of tr
     // if not connected to root then keep connecting upwards
     while (dparent[tail(p)] != -1)
         p = splice(p);
-
+    
     return p;
 }
 
