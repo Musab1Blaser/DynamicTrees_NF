@@ -246,8 +246,8 @@ int ST_Tree::after(int v) { // returns the vertex after v on path(v), if v is th
 }
 
 int ST_Tree::parent(int v){
-    if (tail(path(v)) == v){ //so no parent
-        return -1;
+    if (tail(path(v)) == v){ //so no parent or dashed parent
+        return dparent[v];
     }
 
     return after(v);
@@ -266,9 +266,7 @@ int ST_Tree::grossmin(ST_Node* v){
 
   // traverse upwards till root
   while (v->bparent != nullptr) {
-    if (v->external==false){
         min_value += v->netmin;
-    }
     v = v->bparent;
   }
 
@@ -290,6 +288,51 @@ int ST_Tree::pcost(int v){
     }
 
     return grosscost(deepest_left->bparent);
+}
+
+int ST_Tree::pmincost(ST_Node* p){
+    ST_Node* u = p;
+
+    while (u->netcost!=0 and (u->bright->external != true) or (u->bright->netmin<=0)){
+        if (u->bright->external==false and u->bright->netcost==0){
+            u = u->bright;
+        }
+        else if (u->netcost>0){
+            u = u->bleft;
+        }
+    }
+
+    return u->bleft->btail->vertex_id;
+}
+
+void ST_Tree::pupdate(ST_Node* p, double x){
+    p->netmin = p->netmin + x;
+}
+
+void ST_Tree::reverse(ST_Node* p){
+    p->reversed = !p->reversed;
+}
+
+double cost(int v){
+    if (v=tail(path(v))){
+        return dcost(v);
+    }
+    else{
+        pcost(v);
+    }
+}
+
+double mincost(int v){
+    return pmincost(expose(v));
+}
+
+void update(int v, double x){
+    return pudate(expose(v), x)
+}
+
+void evert(int v){
+    reverse(expose(v));
+    dparent(v) = nullptr;
 }
 
 // TODO - visualise graph - menu modification system?

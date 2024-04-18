@@ -40,10 +40,9 @@ class ST_Tree
         int after(int v);  // return the vertex right after v in the path, unless it is head in which case return -1
 
         int pcost(int v);  // To implement
-        //int pmincost(ST_Node* p);  // To implement
-        
-        // void pupdate(ST_Node* p, double x);  // To implement
-        // void reverse(ST_Node* p);  // To implement
+        int pmincost(ST_Node* p);  // Return the vertex closest to tail(p) such that (u, after(u)) has minimum cost among edges on p
+        void pupdate(ST_Node* p, double x);  // To implement
+        void reverse(ST_Node* p);  // To implement
 
         // sub operations:
         int grossmin(ST_Node* v);
@@ -79,13 +78,13 @@ class ST_Tree
         int parent(int v); // return parent of v (or return null if it has no parent)
         int root(int v); // return root of the tree containing v
 
-        // double cost(int v); // To implement
-        // double mincost(int v); // To implement
-        // void update(int v, double x); // To implement
+        double cost(int v); // To implement
+        double mincost(int v); // To implement
+        void update(int v, double x); // To implement
 
         void link(int v, int w, double x); // Let v be a root of a tree. Connect w to v, effectively joining two trees  --  cost not handled
         double cut(int v); // Divide the tree into two by breaking at vertex v  -- cost not handled
 
-        // void evert(int v); // To implement
+        void evert(int v); // To implement
 
 };
