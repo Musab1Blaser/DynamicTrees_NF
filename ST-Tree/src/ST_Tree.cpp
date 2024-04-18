@@ -386,11 +386,13 @@ std::vector<std::vector<int>> ST_Tree::getAllEdges(){
     std::vector<std::vector<int>> graphs = getAllGraphs();
     std::cout << "Internal Paths:\n";
     for (std::vector<int> graph : graphs){
+        std::cout << graph[0];
         for (int i = 0; i < graph.size() - 1; i++){
-            std::cout << graph[i] << " " << graph[i+1] << std::endl;
+            std::cout << " " << graph[i+1];
             std::vector<int> edge = {graph[i], graph[i+1], (int) pcost(graph[i+1])};
             edges.push_back(edge);
         }
+        std::cout << std::endl;
     }
     return edges;
 };
@@ -443,11 +445,11 @@ double ST_Tree::pcost(int v){
 double ST_Tree::pmincost(ST_Node* p){
     ST_Node* u = p;
 
-    while (u->netcost!=0 and (u->bright->external != true) or (u->bright->netmin<=0)){
-        if (u->bright->external==false and u->bright->netcost==0){
+    while (u->netcost !=0 and (u->bright->external or u->bright->netmin >=0)){
+        if (!u->bright->external and u->bright->netcost==0){
             u = u->bright;
         }
-        else if (u->netcost>0){
+        else if (u->netcost > 0){
             u = u->bleft;
         }
     }
