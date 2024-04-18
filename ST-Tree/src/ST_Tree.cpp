@@ -190,7 +190,6 @@ ST_Node* ST_Tree::expose(int v) // Create bold path from this node to root of tr
 void ST_Tree::link(int v, int w, double x) // Let v be a root of a tree. Connect w to v, effectively joining two trees  --  cost not handled
 {
     concatenate(path(v), expose(w), x); // makes path from root of v to w bold
-    //current_path(path(v));
 }
 
 double ST_Tree::cut(int v) // Divide the tree into two by breaking at vertex v  -- cost not handled
@@ -201,38 +200,102 @@ double ST_Tree::cut(int v) // Divide the tree into two by breaking at vertex v  
     return y;
 }
 
-// TODO - visualise graph - menu modification system?
+int ST_Tree::before(int v) { // returns the vertex before v on path(v), if v is the tail return null -- reversed not considered
+    ST_Node* u = vertices[v];
 
-void ST_Tree::current_path(ST_Node* start) 
-{
-    struct ST_Node *current, *pre;
-    current = start;
-    while (current != NULL) {
- 
-        if (current->bleft == NULL) {
-            if (current->vertex_id !=-1){
-                std::cout << current->vertex_id << " ";
-            }
-            current = current->bright;
-        }
-        else {
-            pre = current->bleft;
-            while (pre->bright != NULL
-                   && pre->bright != current)
-                pre = pre->bright;
-    
-            if (pre->bright == NULL) {
-                pre->bright = current;
-                current = current->bleft;
-            }
+    //ST_Node* current = u;
+    // while (current->bparent) {
+    //     if (current->bparent->reversed)
+    //         current->reversed = !current->reversed;
+    //     current = current->bparent;
+    // }
 
-            else {
-                pre->bright = NULL;
-                if (current->vertex_id !=-1){
-                    std::cout << current->vertex_id << " ";
-                }
-                current = current->bright;
-            }
+    // deepest node that is the right child of its parent
+    ST_Node* deepest_right = nullptr;
+    ST_Node* current = u;
+    while (current->bparent) {
+        if (current->bparent->bright == current) {  
+            deepest_right = current->bparent;
+            break;
         }
+        current = current->bparent;
     }
+
+    // rightmost external descendant 
+    if (deepest_right) {
+        return deepest_right->bleft->btail->vertex_id;
+    }
+
+    return -1;
 }
+
+int ST_Tree::after(int v) { // returns the vertex after v on path(v), if v is the head return null
+    ST_Node* u = vertices[v];
+
+    // deepest node that is the left child of its parent
+    ST_Node* deepest_left = nullptr;
+    ST_Node* current = u;
+    while (current->bparent) {
+        if (current->bparent->bleft == current) {  
+            deepest_left = current->bparent;
+            break;
+        }
+        current = current->bparent;
+    }
+
+    // rightmost external descendant 
+    if (deepest_left) {
+        return deepest_left->bright->bhead->vertex_id;
+    }
+
+    return -1;
+}
+
+int ST_Tree::parent(int v){
+    if (tail(path(v)) == v){ //so no parent
+        return -1;
+    }
+
+    return after(v);
+}
+
+int ST_Tree::root(int v){
+    return tail(expose(v));
+}
+
+int ST_Tree::grosscost(ST_Node* v){
+    return ((v->netcost) + (grossmin(v)));
+}
+
+int ST_Tree::grossmin(ST_Node* v){
+  int min_value = v->netmin;
+
+  // traverse upwards till root
+  while (v->bparent != nullptr) {
+    if (v->external==false){
+        min_value += v->netmin;
+    }
+    v = v->bparent;
+  }
+
+  return min_value;
+}
+
+int ST_Tree::pcost(int v){
+    ST_Node* u = vertices[v];
+
+    // deepest node that is the left child of its parent
+    ST_Node* deepest_left = nullptr;
+    ST_Node* current = u;
+    while (current->bparent) {
+        if (current->bparent->bleft == current) {  
+            deepest_left = current->bparent;
+            break;
+        }
+        current = current->bparent;
+    }
+
+    return grosscost(deepest_left->bparent);
+}
+
+// TODO - visualise graph - menu modification system?
