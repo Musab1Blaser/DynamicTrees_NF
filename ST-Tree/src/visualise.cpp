@@ -32,8 +32,8 @@ void GraphManager::displayCombinedGraph(std::vector<std::vector<int>> bold_edges
     dot_file.close();
     std::string command = "dot -Tpng combined_graph.dot -o " + filename + ".png";
     system(command.c_str());
-    command = "open " + filename + ".png";
-    system(command.c_str());
+    // command = "open " + filename + ".png";
+    // system(command.c_str());
 }
 
 

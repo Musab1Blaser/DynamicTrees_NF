@@ -140,6 +140,13 @@ void ST_Tree::rotate(ST_Node* v)
 
             // update v's parent
             v->bparent = u->bparent;
+            if (v->bparent)
+            {
+                if (v->bparent->bleft == u)
+                    v->bparent->bleft = v;
+                else
+                    v->bparent->bright = v;
+            }
 
             // make u left child
             v->bleft = u;
@@ -172,7 +179,7 @@ void ST_Tree::rotate(ST_Node* v)
                     u->bright->netmin -= u->netmin;
             
         }
-        else
+        else // rotate right
         {
             // give v's right child
             u->bleft = v->bright;
@@ -180,6 +187,13 @@ void ST_Tree::rotate(ST_Node* v)
 
             // update v's parent
             v->bparent = u->bparent;
+            if (v->bparent)
+            {
+                if (v->bparent->bleft == u)
+                    v->bparent->bleft = v;
+                else
+                    v->bparent->bright = v;
+            }
             
             // make u right child
             v->bright = u;
@@ -213,22 +227,26 @@ void ST_Tree::rotate(ST_Node* v)
         }
 
         // update head and tail
-        u->bhead = u->bleft->bhead;
-        u->btail = u->bright->btail;
+        u->bhead = vertices[head(u->bleft)];
+        u->btail = vertices[tail(u->bright)];
 
-        v->bhead = v->bleft->bhead;
-        v->btail = v->bright->btail;
+        v->bhead = vertices[head(v->bleft)];
+        v->btail = vertices[tail(v->bright)];
 
         bool tmp = u->reversed;
         u->reversed = v->reversed;
         v->reversed = tmp;
     }
+    displayInternalGraph();
+    std::cout << "Rotated " << getEdge(v).first << "-" << getEdge(v).second << " | graph num " << representation_number << std::endl;
 }
 
 // Main operations
 ST_Node* ST_Tree::concatenate(ST_Node* p, ST_Node* q, double x) // Connect two paths through an edge of cost x 
 {
     construct(p, q, x);
+    std::cout << "concatenated " << getEdge(p).first << "-" << getEdge(p).second << " with " << getEdge(q).first << "-" << getEdge(q).second << " | graph num : " << representation_number+1 << std::endl;
+    displayInternalGraph();
     return p->bparent;
 }
 
@@ -253,6 +271,8 @@ std::tuple<ST_Node*, ST_Node*, double, double> ST_Tree::split(int v) // Break a 
 
         destroy(cur); // delete edge
     }
+    displayInternalGraph();
+    std::cout << "Split " << v << " completed in " << representation_number << std::endl;
     return {p, q, x, y};
 }
 
@@ -270,9 +290,15 @@ ST_Node* ST_Tree::splice(ST_Node* p) // Extend current bold path upwards by conv
     dparent[tail(p)] = -1; // dashed edge removed
     p = concatenate(p, path(v), dcost[tail(p)]); // connect me to the node above me
     if (r) // if more nodes on way to root
+    {
+        std::cout << "Splice " << getEdge(p).first << "-" << getEdge(p).second << " completed in " << representation_number+1 << std::endl;
         return concatenate(p, r, y); // connect me to the path above v
+    }
     else // no path to root
+    {
+        std::cout << "Splice " << getEdge(p).first << "-" << getEdge(p).second << " completed in " << representation_number << std::endl;
         return p;
+    }
 }
 
 ST_Node* ST_Tree::expose(int v) // Create bold path from this node to root of tree -- cost not handled
@@ -294,6 +320,8 @@ ST_Node* ST_Tree::expose(int v) // Create bold path from this node to root of tr
     while (dparent[tail(p)] != -1)
         p = splice(p);
     
+    std::cout << "exposed " << v << "| graph num : " << representation_number+1 << std::endl;
+    displayInternalGraph();
     return p;
 }
 
@@ -564,10 +592,7 @@ void ST_Tree::evert(int v){
 
 std::pair<int, int> ST_Tree::getEdge(ST_Node* eNode)
 {
-    if (eNode->reversed)
-        return {head(eNode->bright), tail(eNode->bleft)};
-    else
-        return {tail(eNode->bleft), head(eNode->bright)};
+    return {tail(eNode->bleft), head(eNode->bright)};
 }
 
 void ST_Tree::displayInternalGraph() {
@@ -592,12 +617,12 @@ void ST_Tree::displayInternalGraph() {
                 if (cur->bleft->external) // if external
                 {
                     dot_file << cur->bleft->vertex_id << " [shape=circle];\n";
-                    dot_file << "\"(" << edgeName.first << "," << edgeName.second <<  ((cur->reversed) ? ")*" : ")") << "\" -> " << cur->bleft->vertex_id << ";\n";
+                    dot_file << "\"(" << edgeName.first << "," << edgeName.second <<  ((cur->reversed) ? ")*" : ")") << "\" -> " << cur->bleft->vertex_id << " [label=l];\n";
                 }
                 else // if internal
                 {
                     std::pair<int, int> childEdgeName = getEdge(cur->bleft);
-                    dot_file << "\"(" << edgeName.first << "," << edgeName.second <<  ((cur->reversed) ? ")*" : ")") << "\" -> " << "\"(" << childEdgeName.first << "," << childEdgeName.second <<  ((cur->bleft->reversed) ? ")*" : ")") << "\";\n";
+                    dot_file << "\"(" << edgeName.first << "," << edgeName.second <<  ((cur->reversed) ? ")*" : ")") << "\" -> " << "\"(" << childEdgeName.first << "," << childEdgeName.second <<  ((cur->bleft->reversed) ? ")*" : ")") << "\" [label=l];\n";
                     bfs.push(cur->bleft);                    
                 }
 
@@ -605,12 +630,12 @@ void ST_Tree::displayInternalGraph() {
                 if (cur->bright->external) // if external
                 {
                     dot_file << cur->bright->vertex_id << " [shape=circle];\n";
-                    dot_file << "\"(" << edgeName.first << "," << edgeName.second <<  ((cur->reversed) ? ")*" : ")") << "\" -> " << cur->bright->vertex_id << ";\n";
+                    dot_file << "\"(" << edgeName.first << "," << edgeName.second <<  ((cur->reversed) ? ")*" : ")") << "\" -> " << cur->bright->vertex_id << " [label=r];\n";
                 }
                 else // if internal
                 {
                     std::pair<int, int> childEdgeName = getEdge(cur->bright);
-                    dot_file << "\"(" << edgeName.first << "," << edgeName.second <<  ((cur->reversed) ? ")*" : ")") << "\" -> " << "\"(" << childEdgeName.first << "," << childEdgeName.second <<  ((cur->bright->reversed) ? ")*" : ")") << "\";\n";
+                    dot_file << "\"(" << edgeName.first << "," << edgeName.second <<  ((cur->reversed) ? ")*" : ")") << "\" -> " << "\"(" << childEdgeName.first << "," << childEdgeName.second <<  ((cur->bright->reversed) ? ")*" : ")") << "\" [label=r];\n";
                     bfs.push(cur->bright);                    
                 }
                 
@@ -618,8 +643,8 @@ void ST_Tree::displayInternalGraph() {
                 dot_file << "\"(" << edgeName.first << "," << edgeName.second <<  ((cur->reversed) ? ")*" : ")") << "\" -> " << cur->bhead->vertex_id << " [style=dashed, label = h];\n";
                 dot_file << "\"(" << edgeName.first << "," << edgeName.second <<  ((cur->reversed) ? ")*" : ")") << "\" -> " << cur->btail->vertex_id << " [style=dashed, label = t];\n";
             }
-
-
+            else
+                dot_file << cur->vertex_id << " [shape=circle];\n";
         }
     }
 
@@ -630,6 +655,6 @@ void ST_Tree::displayInternalGraph() {
     dot_file.close();
     std::string command = "dot -Tpng internal_graph.dot -o internal_graphs/i" + std::to_string(++representation_number) + ".png";
     system(command.c_str());
-    command = "open internal_graphs/i" + std::to_string(representation_number)+ ".png";
-    system(command.c_str());
+    // command = "open internal_graphs/i" + std::to_string(representation_number)+ ".png";
+    // system(command.c_str());
 }

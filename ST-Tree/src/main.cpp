@@ -22,20 +22,20 @@ int main()
     ST_Tree ST = ST_Tree(nodes); // Initialise ST-Tree with 6 nodes numbered 1, 2, ..., 6
     GraphManager graph_manager(nodes);
 
-    ST.link(2, 1, 4);
-    ST.link(6, 5, 3);
-    ST.link(4, 2, 6);
-    ST.link(5, 2, 9);
-    ST.link(3, 1, 5);
-    ST.link(8,9,10);
-    ST.mincost(5);
-    ST.link(1,8,3);
-    ST.evert(3);
-    ST.update(8,2);
-    ST.cut(2);
-    ST.link(3,4,1);
-    ST.link(7,6,3);
-    ST.link(2,10,1);
+    // ST.link(2, 1, 4);
+    // ST.link(6, 5, 3);
+    // ST.link(4, 2, 6);
+    // ST.link(5, 2, 9);
+    // ST.link(3, 1, 5);
+    // ST.link(8,9,10);
+    // ST.mincost(5);
+    // ST.link(1,8,3);
+    // ST.evert(3);
+    // ST.update(8,2);
+    // ST.cut(2);
+    // ST.link(3,4,1);
+    // ST.link(7,6,3);
+    // ST.link(2,10,1);
     // ST.evert(6);
     // ST.evert(5);
     // ST.evert(4);
