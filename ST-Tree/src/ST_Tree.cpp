@@ -1,5 +1,7 @@
 #include "ST_Tree.hpp"
 #include <algorithm>
+#include <fstream>
+#include <queue>
 
 
 // Constructors
@@ -559,4 +561,74 @@ void ST_Tree::evert(int v){
     dparent[v] = -1;
 }
 
-// TODO - visualise graph - menu modification system?
+std::pair<int, int> ST_Tree::getEdge(ST_Node* eNode)
+{
+    if (eNode->reversed)
+        return {head(eNode->bright), tail(eNode->bleft)};
+    else
+        return {tail(eNode->bleft), head(eNode->bright)};
+}
+
+void ST_Tree::displayInternalGraph() {
+    std::vector<ST_Node*> path_list = getAllUniquePaths(); 
+    std::ofstream dot_file("internal_graph.dot");
+    dot_file << "digraph G {\n";
+    
+    // Add Connections for each path
+    for (ST_Node* p : path_list)
+    {
+        std::queue<ST_Node*> bfs;
+        bfs.push(p);
+        while (bfs.size())
+        {
+            ST_Node* cur = bfs.front();
+            bfs.pop();
+            if (!cur->external)
+            {
+                std::pair<int, int> edgeName = getEdge(cur);
+                dot_file << "\"(" << edgeName.first << "," << edgeName.second <<  ((cur->reversed) ? ")*" : ")") << "\" [shape=box];\n"; // create internal node shape
+                // left child connection
+                if (cur->bleft->external) // if external
+                {
+                    dot_file << cur->bleft->vertex_id << " [shape=circle];\n";
+                    dot_file << "\"(" << edgeName.first << "," << edgeName.second <<  ((cur->reversed) ? ")*" : ")") << "\" -> " << cur->bleft->vertex_id << ";\n";
+                }
+                else // if internal
+                {
+                    std::pair<int, int> childEdgeName = getEdge(cur->bleft);
+                    dot_file << "\"(" << edgeName.first << "," << edgeName.second <<  ((cur->reversed) ? ")*" : ")") << "\" -> " << "\"(" << childEdgeName.first << "," << childEdgeName.second <<  ((cur->bleft->reversed) ? ")*" : ")") << "\";\n";
+                    bfs.push(cur->bleft);                    
+                }
+
+                // right child connection
+                if (cur->bright->external) // if external
+                {
+                    dot_file << cur->bright->vertex_id << " [shape=circle];\n";
+                    dot_file << "\"(" << edgeName.first << "," << edgeName.second <<  ((cur->reversed) ? ")*" : ")") << "\" -> " << cur->bright->vertex_id << ";\n";
+                }
+                else // if internal
+                {
+                    std::pair<int, int> childEdgeName = getEdge(cur->bright);
+                    dot_file << "\"(" << edgeName.first << "," << edgeName.second <<  ((cur->reversed) ? ")*" : ")") << "\" -> " << "\"(" << childEdgeName.first << "," << childEdgeName.second <<  ((cur->bright->reversed) ? ")*" : ")") << "\";\n";
+                    bfs.push(cur->bright);                    
+                }
+                
+                // head and tail
+                dot_file << "\"(" << edgeName.first << "," << edgeName.second <<  ((cur->reversed) ? ")*" : ")") << "\" -> " << cur->bhead->vertex_id << " [style=dashed, label = h];\n";
+                dot_file << "\"(" << edgeName.first << "," << edgeName.second <<  ((cur->reversed) ? ")*" : ")") << "\" -> " << cur->btail->vertex_id << " [style=dashed, label = t];\n";
+            }
+
+
+        }
+    }
+
+    
+    dot_file << "}\n";
+
+    // Close the file
+    dot_file.close();
+    std::string command = "dot -Tpng internal_graph.dot -o internal_graphs.png";
+    system(command.c_str());
+    command = "open internal_graphs.png";
+    system(command.c_str());
+}

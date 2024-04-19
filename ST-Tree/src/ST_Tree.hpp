@@ -78,6 +78,8 @@ class ST_Tree
         std::vector<ST_Node*> getAllUniquePaths(); // Return all unique paths in the tree
         std::vector<std::vector<int>> getAllGraphs(); // Return all connected components of the tree
 
+        std::pair<int, int> getEdge(ST_Node* eNode);
+
     public:
         // Constructors and Destructor
         ST_Tree(std::map<int, int>& treePar, int n);  // Construct based on input tree/forest and number of nodes (named 1 to n)
@@ -88,6 +90,9 @@ class ST_Tree
 
         // Getter for debugging
         ST_Node* get_vertex_ptr(int vertex_id);
+
+        // Internal Graph Visualiser
+        void displayInternalGraph();
 
         // Dynamic Tree Operations
         int parent(int v); // return parent of v (or return null if it has no parent)

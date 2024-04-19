@@ -114,6 +114,7 @@ Select the operation format you wish to use:\n\
             ST.evert(v);
         }
         
+        ST.displayInternalGraph();
         displayGraph(graph_manager, ST, "graph_results/"+std::to_string(++op_num)); // display the graph
     }
 }

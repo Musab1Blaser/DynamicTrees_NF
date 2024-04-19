@@ -12,7 +12,7 @@ void GraphManager::displayCombinedGraph(std::vector<std::vector<int>> bold_edges
         dot_file << ", label=" << edge[2]<< "];\n";
     }
     // boost::write_graphviz(dot_file, g);
-    boost::graph_traits<Graph>::edge_iterator ei, ei_end;
+    // boost::graph_traits<Graph>::edge_iterator ei, ei_end;
     // for (boost::tie(ei, ei_end) = boost::edges(g); ei != ei_end; ++ei) {
     //     dot_file << boost::source(*ei, g) << " -> " << boost::target(*ei, g) << ";\n";
     // }
