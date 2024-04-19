@@ -5,23 +5,32 @@
 #include <vector>
 
 
-void displayGraph(GraphManager g, ST_Tree ST, std::string filename)
+void displayGraph(GraphManager g, ST_Tree ST, std::string filename, int mode)
 {
     std::vector<std::vector<int> > boldEdges = ST.getAllEdges(); // get all bold edges
     std::vector<std::vector<int> > dashedEdges = ST.getAllDashEdges(); // get all dashed edges
-    g.displayCombinedGraph(boldEdges, dashedEdges, filename); // display the graph
+    g.displayCombinedGraph(boldEdges, dashedEdges, filename, mode); // display the graph
 }
 
 
-int main()
+int main(int argc, char *argv[])
 {
+    if (argc != 4)
+    {
+        printf("Invalid usage of program. Need to provide three extra command line arguments. e.g ./a.out 2 1 0\n\
+First number represents visualisation mode for actual graph, 0 - no visualisation, 1 - visualise but don't load automatically, 2 - visualise and load\n\
+Second number represents visualisation mode of internal graph, 0 - no visualisation, 1 - visualise but don't load automatically, 2 - visualise and load\n\
+Third number represents debug mode, 0 - no debugging visualisation, 1 - create graph + provide log after certain internal operations");
+        return 0;
+    }
     int nodes;
     std::cout << "How many nodes do you want in the Graph: ";
     std::cin >> nodes;
 
-    ST_Tree ST = ST_Tree(nodes); // Initialise ST-Tree with 6 nodes numbered 1, 2, ..., 6
+    ST_Tree ST = ST_Tree(nodes, std::stoi(argv[3])); // Initialise ST-Tree with 6 nodes numbered 1, 2, ..., 6
     GraphManager graph_manager(nodes);
 
+    // Sample operations:
     // ST.link(2, 1, 4);
     // ST.link(6, 5, 3);
     // ST.link(4, 2, 6);
@@ -76,14 +85,12 @@ Select the operation format you wish to use:\n\
         {
             int v;
             std::cin >> v;
-            // std::cout << "Not implemented" << std::endl;
             std::cout << "Result is: " << ST.cost(v) << std::endl;
         }
         else if (opt == "mincost")
         {
             int v;
             std::cin >> v;
-            // std::cout << "Not implemented" << std::endl;
             std::cout << "Result is: " << ST.mincost(v) << std::endl;
         }
         // Tree Operations
@@ -91,7 +98,6 @@ Select the operation format you wish to use:\n\
         {
             int v, x;
             std::cin >> v >> x;
-            // std::cout << "Not implemented" << std::endl;
             ST.update(v, x);
         }
         else if (opt == "link")
@@ -110,11 +116,13 @@ Select the operation format you wish to use:\n\
         {
             int v;
             std::cin >> v;
-            // std::cout << "Not implemented" << std::endl;
             ST.evert(v);
         }
         
-        ST.displayInternalGraph();
-        displayGraph(graph_manager, ST, "graph_results/"+std::to_string(++op_num)); // display the graph
+        if (std::stoi(argv[2]))
+            ST.displayInternalGraph(std::stoi(argv[2]));
+
+        if (std::stoi(argv[1]))
+            displayGraph(graph_manager, ST, "graph_results/"+std::to_string(++op_num), std::stoi(argv[1])); // display the graph
     }
 }

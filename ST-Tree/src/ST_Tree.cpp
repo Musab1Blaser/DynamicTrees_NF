@@ -6,7 +6,7 @@
 int ST_Tree::representation_number = 0;
 
 // Constructors
-ST_Tree::ST_Tree(std::map<int, int>& treePar, int n) // Construct based on input tree/forest and number of nodes (named 1 to n)
+ST_Tree::ST_Tree(std::map<int, int>& treePar, int n, int debug) // Construct based on input tree/forest and number of nodes (named 1 to n)
 {
     for (int i = 1; i <= n; i++)
     {
@@ -18,18 +18,16 @@ ST_Tree::ST_Tree(std::map<int, int>& treePar, int n) // Construct based on input
     {
         link(u, v, 0);
     }
+
+    debug_mode = debug;
 }
 
-ST_Tree::ST_Tree(int n) // Create tree of n unconnected nodes (named 1 to n)
+ST_Tree::ST_Tree(int n, int debug) // Create tree of n unconnected nodes (named 1 to n)
 { 
     for (int i = 1; i <= n; i++)
         vertices[i] = new ST_Node(true, i), dparent[i] = -1;
-}
-
-// Getter for debugging
-ST_Node* ST_Tree::get_vertex_ptr(int vertex_id)
-{
-    return vertices[vertex_id];
+    
+    debug_mode = debug;
 }
 
 // Elemntary Path operations
@@ -52,9 +50,158 @@ int ST_Tree::tail(ST_Node* p) // Return tail/upper-most node of path
     return (p->reversed) ? p->bhead->vertex_id : p->btail->vertex_id;
 }
 
+
+int ST_Tree::before(int v) { // returns the vertex before v on path(v), if v is the tail return -1
+    ST_Node* u = vertices[v];
+
+    // deepest node that is the right child of its parent
+    ST_Node* deepest_right = nullptr;
+    ST_Node* current = u;
+    bool rev = false;
+    if (current->bparent)
+    {
+        rev = get_reversal_state(current);
+        while (current->bparent) 
+        {
+            rev ^= current->reversed;
+            if ((current->bparent->bright == current) ^ rev) {  // if i am a right child
+                deepest_right = current->bparent;
+                break;
+            }
+            current = current->bparent;
+        }
+    }
+
+    // rightmost external descendant of left sibling
+    if (deepest_right) {
+        if (rev)
+            return head(deepest_right->bright); 
+        else
+            return tail(deepest_right->bleft);
+    }
+
+    return -1;
+}
+
+int ST_Tree::after(int v) { // returns the vertex after v on path(v), if v is the head return -1
+    ST_Node* u = vertices[v];
+
+    // deepest node that is the left child of its parent
+    ST_Node* deepest_left = nullptr;
+    ST_Node* current = u;
+    bool rev = false;
+    if (current->bparent)
+    {
+        rev = get_reversal_state(current);
+        while (current->bparent) {
+            rev ^= current->reversed; // update reversal state while moving up
+            if ((current->bparent->bleft == current) ^ rev) {  // if i am a left child
+                deepest_left = current->bparent;
+                break;
+            }
+            current = current->bparent;
+        }
+    }
+
+    // leftmost external descendant of right sibling
+    if (deepest_left) {
+        if (rev)
+            return tail(deepest_left->bleft); 
+        else
+            return head(deepest_left->bright);
+    }
+
+    return -1;
+}
+
+
+double ST_Tree::pcost(int v){ // Return the cost of the edge between v, after(v) -> parent in path
+    ST_Node* u = vertices[v];
+
+    // deepest node that is the left child of its parent
+    ST_Node* deepest_left = nullptr;
+    ST_Node* current = u;
+    bool rev = get_reversal_state(current->bparent);
+    while (current->bparent) {
+        if (!rev){
+            if (current->bparent->bleft == current) {  
+            deepest_left = current;
+            break;
+            }
+        current = current->bparent;
+        rev ^= current->reversed;
+        }
+        else{
+            if (current->bparent->bright == current) {  
+            deepest_left = current;
+            break;
+            }
+        current = current->bparent;
+        rev ^= current->reversed;
+        }
+
+    }
+
+    return grosscost(deepest_left->bparent);
+}
+
+double ST_Tree::pmincost(ST_Node* p){ // Return the vertex closest to tail(p) such that (u, after(u)) has minimum cost among edges on p
+    ST_Node* u = p;
+
+    bool rev = get_reversal_state(u);
+    while (u->netcost !=0 or !(!rev && (u->bright->external or u->bright->netmin >=0)) or !(rev && (u->bleft->external or u->bleft->netmin >= 0))){
+        if (!rev){
+            if (!u->bright->external and u->bright->netcost==0){
+            u = u->bright;
+            }
+            else if (u->netcost > 0){
+                u = u->bleft;
+            }
+            rev ^= u->reversed;
+        }
+        else{
+            if (!u->bleft->external and u->bleft->netcost==0){
+            u = u->bleft;
+            }
+            else if (u->netcost > 0){
+                u = u->bright;
+            }
+            rev ^= u->reversed;
+        }
+    }
+
+    return (rev) ? head(u->bright) : tail(u->bleft);
+}
+
+void ST_Tree::pupdate(ST_Node* p, double x){ // Increase the cost of each in the path by x
+    p->netmin = p->netmin + x;
+}
+
+void ST_Tree::reverse(ST_Node* p){ // reverse the path
+    p->reversed = !p->reversed;
+}
+
+// Cost Helpers
+double ST_Tree::grosscost(ST_Node* v){ // compute grosscost of a node (weight of the edge)
+    return ((v->netcost) + (grossmin(v)));
+}
+
+double ST_Tree::grossmin(ST_Node* v){ // compute grossmin of a path (edge with least weight) represented by a node
+  int min_value = v->netmin;
+
+  // traverse upwards till root
+  while (v->bparent != nullptr) {
+        v = v->bparent;
+        min_value += v->netmin;
+  }
+
+  return min_value;
+}
+
+
 // Dynamic Operations
 // Suboperations
-void ST_Tree::construct(ST_Node* v, ST_Node* w, double x) // Create a new node corresponding to an edge connecting the two paths represented by v and w  --  cost not handled
+void ST_Tree::construct(ST_Node* v, ST_Node* w, double x) // Create a new node corresponding to an edge connecting the two paths represented by v and w
 {
     ST_Node* u = new ST_Node(false, nullptr, false, 0, 0); // internal node, with no parent, not reversed, netmin and netcost 0
     
@@ -69,29 +216,28 @@ void ST_Tree::construct(ST_Node* v, ST_Node* w, double x) // Create a new node c
     u->btail = vertices[tail(w)];
 
     // update costs
-    // update netmin
+    // update netmin - min is min of myself and both my children
     u->netmin = x;
     if (!u->bleft->external)
         u->netmin = std::min(u->netmin, u->bleft->netmin);
     if (!u->bright->external)
         u->netmin = std::min(u->netmin, u->bright->netmin);
 
-    // update netcost
+    // set netcost
     u->netcost = x - u->netmin;
 
-    // update children
+    // update children - netmin is difference between original netmin and value assigned to parent
     if (!u->bleft->external)
         u->bleft->netmin -= u->netmin; 
     if (!u->bright->external)
         u->bright->netmin -= u->netmin; 
 }
 
-std::tuple<ST_Node*, ST_Node*, double> ST_Tree::destroy (ST_Node* u) // Destroy the root of the tree, breaking it into two trees/represented paths -> return (path1, path2, edge1cost, edge2cost) - edge1, edge2 are the edges broken --  cost not handled
+std::tuple<ST_Node*, ST_Node*, double> ST_Tree::destroy (ST_Node* u) // Destroy the root of the tree, breaking it into two trees/represented paths -> return (path1, path2, edge1cost, edge2cost) - edge1, edge2 are the edges broken
 {
-    // dparent[u->bleft->btail->vertex_id] = u->bright->bhead->vertex_id; - should not be modifying dashed paths inside helper functions
     std::tuple<ST_Node*, ST_Node*, double> result = {u->bleft, u->bright, 0};
     
-    // Update costs of children
+    // Update costs of children - reverse of construct operation
     if (!u->bleft->external)
         u->bleft->netmin += u->netmin;
     if (!u->bright->external)
@@ -111,14 +257,17 @@ std::tuple<ST_Node*, ST_Node*, double> ST_Tree::destroy (ST_Node* u) // Destroy 
     return result;
 }
 
-void ST_Tree::rotate(ST_Node* v)
+void ST_Tree::rotate(ST_Node* v) // rotate a node (representing an edge) upwards
 {
     if (v->bparent)
     {
         ST_Node* u = v->bparent;
-        if (v->reversed)
+
+        if (v->reversed) // handle v's reversal by computing it down 1 stage
         {
             v->reversed = !v->reversed;
+
+            // reverse my pointers
             ST_Node* tmp = v->bhead;
             v->bhead = v->btail;
             v->btail = tmp;
@@ -127,6 +276,7 @@ void ST_Tree::rotate(ST_Node* v)
             v->bleft = v->bright;
             v->bright = tmp;
 
+            // reverse my non-external children
             if (!v->bleft->external) v->bleft->reversed = !v->bleft->reversed;
             if (!v->bright->external) v->bright->reversed = !v->bright->reversed;
         }
@@ -134,7 +284,7 @@ void ST_Tree::rotate(ST_Node* v)
         
         if (u->bright == v) // rotate left
         {
-            // give v's left child
+            // give v's left child - reverse already handled so my left child by pointer is my actual left child
             u->bright = v->bleft;
             u->bright->bparent = u;
 
@@ -154,34 +304,35 @@ void ST_Tree::rotate(ST_Node* v)
 
             // update costs
             double orig_v_nmin = v->netmin;
-            // update v - right child
+            // update v's right child
             if (!v->bright->external)
-                v->bright->netmin += v->netmin;
-            // update v - the child rotate up
-            v->netcost += v->netmin;
-            v->netmin = u->netmin;
+                v->bright->netmin += v->netmin; // as v->grossmin reduces by v->netmin
+            // update v
+            v->netcost += v->netmin; // grossmin reduces by netmin
+            v->netmin = u->netmin;  // my grossmin is now u's grossmin and i now have the former parent of u so my netmin is u's netmin
 
-            // update rotate parent
+            // update u
+            // my netmin is minimum of my netcost and my children's netmin
             u->netmin = u->netcost;
             if (!u->bleft->external)
                 u->netmin = std::min(u->netmin, u->bleft->netmin);
             if (!u->bright->external)
                 u->netmin = std::min(u->netmin, u->bright->netmin);
-            u->netcost -= u->netmin;
+            u->netcost -= u->netmin; // netmin represents change in grossmin after rotation
 
             // update rotated parents children
             if (!u->bleft->external)
-                u->bleft->netmin -= u->netmin;
+                u->bleft->netmin -= u->netmin; // u acts as an intermediate between me and the smallest node
             if (!u->bright->external)
-                if (orig_v_nmin)
+                if (orig_v_nmin) // if my previous parent i.e. v, did not have the min value, so my parent must contain the minimum value - so the difference between me and my parent's min value increases by original netmin of v
                     u->bright->netmin += orig_v_nmin;
-                else
+                else // if my previous parent had min value then my new parent acts as an intermediate between me and the smallest node
                     u->bright->netmin -= u->netmin;
             
         }
         else // rotate right
         {
-            // give v's right child
+            // give v's right child - reverse already handled so my right child by pointer is my actual right child
             u->bleft = v->bright;
             u->bleft->bparent = u;
 
@@ -201,28 +352,29 @@ void ST_Tree::rotate(ST_Node* v)
 
             // update costs
             double orig_v_nmin = v->netmin;
-            // update v - lef child
-            if (!v->bleft->external)
+            // update v's right child
+            if (!v->bleft->external) // as v->grossmin reduces by v->netmin
                 v->bleft->netmin += v->netmin;
-            // update v - the child rotate up
-            v->netcost += v->netmin;
-            v->netmin = u->netmin;
+            // update v
+            v->netcost += v->netmin; // grossmin reduces by netmin
+            v->netmin = u->netmin; // my grossmin is now u's grossmin and i now have the former parent of u so my netmin is u's netmin
 
-            // update rotate parent
+            // update u
+            // my netmin is minimum of my netcost and my children's netmin
             u->netmin = u->netcost;
             if (!u->bleft->external)
                 u->netmin = std::min(u->netmin, u->bleft->netmin);
             if (!u->bright->external)
                 u->netmin = std::min(u->netmin, u->bright->netmin);
-            u->netcost -= u->netmin;
+            u->netcost -= u->netmin; // netmin represents change in grossmin after rotation
 
             // update rotated parents children
             if (!u->bright->external)
-                u->bright->netmin -= u->netmin;
+                u->bright->netmin -= u->netmin; // u acts as an intermediate between me and the smallest node
             if (!u->bleft->external)
-                if (orig_v_nmin)
+                if (orig_v_nmin) // if my previous parent i.e. v, did not have the min value, so my parent must contain the minimum value - so the difference between me and my parent's min value increases by original netmin of v
                     u->bleft->netmin += orig_v_nmin;
-                else
+                else // if my previous parent had min value then my new parent acts as an intermediate between me and the smallest node
                     u->bleft->netmin -= u->netmin;
         }
 
@@ -233,25 +385,30 @@ void ST_Tree::rotate(ST_Node* v)
         v->bhead = vertices[head(v->bleft)];
         v->btail = vertices[tail(v->bright)];
 
-        bool tmp = u->reversed;
+        bool tmp = u->reversed; // if u was reversed, if i set v to be reversed, this has the same effect as the new subtree of v has the same nodes as the old subtree of u
         u->reversed = v->reversed;
         v->reversed = tmp;
     }
-    displayInternalGraph();
-    std::cout << "Rotated " << getEdge(v).first << "-" << getEdge(v).second << " | graph num " << representation_number << std::endl;
+    if (debug_mode)
+    {
+        displayInternalGraph();
+        std::cout << "Rotated " << getEdge(v).first << "-" << getEdge(v).second << " | graph num " << representation_number << std::endl;
+    }
 }
 
-// Main operations
+// Operations
 ST_Node* ST_Tree::concatenate(ST_Node* p, ST_Node* q, double x) // Connect two paths through an edge of cost x 
 {
     construct(p, q, x);
-    std::cout << "concatenated " << getEdge(p).first << "-" << getEdge(p).second << " with " << getEdge(q).first << "-" << getEdge(q).second << " | graph num : " << representation_number+1 << std::endl;
-    displayInternalGraph();
+    if (debug_mode)
+    {
+        std::cout << "concatenated " << getEdge(p).first << "-" << getEdge(p).second << " with " << getEdge(q).first << "-" << getEdge(q).second << " | graph num : " << representation_number+1 << std::endl;
+        displayInternalGraph();
+    }
     return p->bparent;
 }
 
-
-std::tuple<ST_Node*, ST_Node*, double, double> ST_Tree::split(int v) // Break a path at a node into path before and path after. Selected node becomes a trivial/single node path -- cost not handled
+std::tuple<ST_Node*, ST_Node*, double, double> ST_Tree::split(int v) // Break a path at a node into path before and path after. Selected node becomes a trivial/single node path
 {
     ST_Node* vNode = vertices[v];
     ST_Node *p {nullptr}, *q {nullptr};
@@ -259,7 +416,6 @@ std::tuple<ST_Node*, ST_Node*, double, double> ST_Tree::split(int v) // Break a 
     while (vNode->bparent) // while there are edges connected to me in the path
     {
         ST_Node* cur = vNode->bparent; // Find an edge connected to me
-        bool cur_rev = get_reversal_state(cur);
         while (cur->bparent) // rotate edge to top to prepare for deletion
             rotate(cur); 
 
@@ -271,13 +427,16 @@ std::tuple<ST_Node*, ST_Node*, double, double> ST_Tree::split(int v) // Break a 
 
         destroy(cur); // delete edge
     }
-    displayInternalGraph();
-    std::cout << "Split " << v << " completed in " << representation_number << std::endl;
+    if (debug_mode)
+    {
+        displayInternalGraph();
+        std::cout << "Split " << v << " completed in " << representation_number << std::endl;
+    }
     return {p, q, x, y};
 }
 
 // Path Partition functions - bold and dashed edges
-ST_Node* ST_Tree::splice(ST_Node* p) // Extend current bold path upwards by converting one dashed edge  -- cost not handled
+ST_Node* ST_Tree::splice(ST_Node* p) // Extend current bold path upwards by converting one dashed edge 
 {
     int v = dparent[tail(p)]; // find node above me outside my path
     auto [q, r, x, y] = split(v); // r is path to root
@@ -291,17 +450,23 @@ ST_Node* ST_Tree::splice(ST_Node* p) // Extend current bold path upwards by conv
     p = concatenate(p, path(v), dcost[tail(p)]); // connect me to the node above me
     if (r) // if more nodes on way to root
     {
-        std::cout << "Splice " << getEdge(p).first << "-" << getEdge(p).second << " completed in " << representation_number+1 << std::endl;
+        if (debug_mode)
+        {
+            std::cout << "Splice " << getEdge(p).first << "-" << getEdge(p).second << " completed in " << representation_number+1 << std::endl;
+        }
         return concatenate(p, r, y); // connect me to the path above v
     }
     else // no path to root
     {
-        std::cout << "Splice " << getEdge(p).first << "-" << getEdge(p).second << " completed in " << representation_number << std::endl;
+        if (debug_mode)
+        {
+            std::cout << "Splice " << getEdge(p).first << "-" << getEdge(p).second << " completed in " << representation_number << std::endl;
+        }
         return p;
     }
 }
 
-ST_Node* ST_Tree::expose(int v) // Create bold path from this node to root of tree -- cost not handled
+ST_Node* ST_Tree::expose(int v) // Create bold path from this node to root of tree 
 {
     auto [q, r, x, y] = split(v); // cut me off from anything below
     if (q) // if path afer me
@@ -320,113 +485,17 @@ ST_Node* ST_Tree::expose(int v) // Create bold path from this node to root of tr
     while (dparent[tail(p)] != -1)
         p = splice(p);
     
-    std::cout << "exposed " << v << "| graph num : " << representation_number+1 << std::endl;
-    displayInternalGraph();
+    if (debug_mode)
+    {
+        std::cout << "exposed " << v << "| graph num : " << representation_number+1 << std::endl;
+        displayInternalGraph();
+    }
     return p;
 }
 
 
-// Dynamic Tree Operations
-void ST_Tree::link(int v, int w, double x) // Let v be a root of a tree. Connect w to v, effectively joining two trees  --  cost not handled
-{
-    concatenate(path(v), expose(w), x); // makes path from root of v to w bold
-}
-
-double ST_Tree::cut(int v) // Divide the tree into two by breaking at vertex v  -- cost not handled
-{
-    expose(v); // make path from me to root bold and everything below dashed
-    auto [p, q, x, y] = split(v);
-    dparent[v] = -1; // don't connect me to what I split off from
-    return y;
-}
-
-bool ST_Tree::get_reversal_state(ST_Node* v)
-{
-    bool rev = v->reversed;
-    while (v->bparent)
-    {
-        v = v->bparent;
-        rev = rev ^ v->reversed;
-    }
-    return rev;
-}
-
-int ST_Tree::before(int v) { // returns the vertex before v on path(v), if v is the tail return null -- reversed not considered
-    ST_Node* u = vertices[v];
-
-    // deepest node that is the right child of its parent
-    ST_Node* deepest_right = nullptr;
-    ST_Node* current = u;
-    bool rev = false;
-    if (current->bparent)
-    {
-        rev = get_reversal_state(current);
-        while (current->bparent) 
-        {
-            rev ^= current->reversed;
-            if ((current->bparent->bright == current) ^ rev) {  
-                deepest_right = current->bparent;
-                break;
-            }
-            current = current->bparent;
-        }
-    }
-
-    // rightmost external descendant of left sibling
-    if (deepest_right) {
-        if (rev)
-            return head(deepest_right->bright); 
-        else
-            return tail(deepest_right->bleft);
-    }
-
-    return -1;
-}
-
-int ST_Tree::after(int v) { // returns the vertex after v on path(v), if v is the head return null
-    ST_Node* u = vertices[v];
-
-    // deepest node that is the left child of its parent
-    ST_Node* deepest_left = nullptr;
-    ST_Node* current = u;
-    bool rev = false;
-    if (current->bparent)
-    {
-        rev = get_reversal_state(current);
-        while (current->bparent) {
-            rev ^= current->reversed;
-            if ((current->bparent->bleft == current) ^ rev) {  
-                deepest_left = current->bparent;
-                break;
-            }
-            current = current->bparent;
-        }
-    }
-
-    // leftmost external descendant of right sibling
-    if (deepest_left) {
-        if (rev)
-            return tail(deepest_left->bleft); 
-        else
-            return head(deepest_left->bright);
-    }
-
-    return -1;
-}
-
-int ST_Tree::parent(int v){
-    if (tail(path(v)) == v){ //so no parent or dashed parent
-        return dparent[v];
-    }
-
-    return after(v);
-}
-
-int ST_Tree::root(int v){
-    return tail(expose(v));
-}
-
-// TODO - visualise graph - menu modification system?
+// Helper Functions
+// Functions related to visualisation
 std::vector<ST_Node*> ST_Tree::getAllUniquePaths(){
     std::map <ST_Node*, int> paths;
     for ( int i = vertices.size(); i > 0; i--){
@@ -458,6 +527,73 @@ std::vector<std::vector<int>> ST_Tree::getAllGraphs(){
     return graphs;
 }
 
+// Miscellaneous operations
+std::pair<int, int> ST_Tree::getEdge(ST_Node* eNode)
+{
+    return {tail(eNode->bleft), head(eNode->bright)};
+}
+
+bool ST_Tree::get_reversal_state(ST_Node* v)
+{
+    bool rev = v->reversed;
+    while (v->bparent)
+    {
+        v = v->bparent;
+        rev = rev ^ v->reversed;
+    }
+    return rev;
+}
+
+// Dynamic Tree Operations
+int ST_Tree::parent(int v){ // return parent of v (or return null if it has no parent)
+    if (tail(path(v)) == v){ //so no parent or dashed parent
+        return dparent[v];
+    }
+
+    return after(v);
+}
+
+int ST_Tree::root(int v){ // return root of the tree containing v
+    return tail(expose(v));
+}
+
+double ST_Tree::cost(int v){ // Return cost of the edge (v, par(v))
+    if (v==tail(path(v))){
+        return dcost[v];
+    }
+    else{
+        return pcost(v);
+    }
+}
+
+
+double ST_Tree::mincost(int v){ // Return the node with the least cost from v to root(v)
+    return pmincost(expose(v));
+}
+
+void ST_Tree::update(int v, double x){ // Increase weight of all edges on the path from v to root(v) by x
+    return pupdate(expose(v), x);
+}
+
+void ST_Tree::link(int v, int w, double x) // Let v be a root of a tree. Connect w to v, effectively joining two trees  
+{
+    concatenate(path(v), expose(w), x); // makes path from root of v to w bold
+}
+
+double ST_Tree::cut(int v) // Divide the tree into two by breaking at vertex v  
+{
+    expose(v); // make path from me to root bold and everything below dashed
+    auto [p, q, x, y] = split(v);
+    dparent[v] = -1; // don't connect me to what I split off from
+    return y;
+}
+
+void ST_Tree::evert(int v){ // Make v the root of the tree
+    reverse(expose(v)); // connect me to root and then reverse the whole connection
+    dparent[v] = -1;
+}
+
+// Visualisation Helper Functions
 std::vector<std::vector<int>> ST_Tree::getAllEdges(){
     std::vector<std::vector<int>> edges;
     std::vector<std::vector<int>> graphs = getAllGraphs();
@@ -485,117 +621,8 @@ std::vector<std::vector<int>> ST_Tree::getAllDashEdges(){
     return edges;
 };
 
-
-int ST_Tree::grosscost(ST_Node* v){
-    return ((v->netcost) + (grossmin(v)));
-}
-
-int ST_Tree::grossmin(ST_Node* v){
-  int min_value = v->netmin;
-
-  // traverse upwards till root
-  while (v->bparent != nullptr) {
-        v = v->bparent;
-        min_value += v->netmin;
-  }
-
-  return min_value;
-}
-
-double ST_Tree::pcost(int v){
-    ST_Node* u = vertices[v];
-
-    // deepest node that is the left child of its parent
-    ST_Node* deepest_left = nullptr;
-    ST_Node* current = u;
-    bool rev = get_reversal_state(current->bparent);
-    while (current->bparent) {
-        if (!rev){
-            if (current->bparent->bleft == current) {  
-            deepest_left = current;
-            break;
-            }
-        current = current->bparent;
-        rev ^= current->reversed;
-        }
-        else{
-            if (current->bparent->bright == current) {  
-            deepest_left = current;
-            break;
-            }
-        current = current->bparent;
-        rev ^= current->reversed;
-        }
-
-    }
-
-    return grosscost(deepest_left->bparent);
-}
-
-double ST_Tree::pmincost(ST_Node* p){
-    ST_Node* u = p;
-
-    bool rev = get_reversal_state(u);
-    while (u->netcost !=0 and (u->bright->external or u->bright->netmin >=0)){
-        if (!rev){
-            if (!u->bright->external and u->bright->netcost==0){
-            u = u->bright;
-            }
-            else if (u->netcost > 0){
-                u = u->bleft;
-            }
-            rev ^= u->reversed;
-        }
-        else{
-            if (!u->bleft->external and u->bleft->netcost==0){
-            u = u->bleft;
-            }
-            else if (u->netcost > 0){
-                u = u->bright;
-            }
-            rev ^= u->reversed;
-        }
-    }
-
-    return u->bleft->btail->vertex_id;
-}
-
-void ST_Tree::pupdate(ST_Node* p, double x){
-    p->netmin = p->netmin + x;
-}
-
-void ST_Tree::reverse(ST_Node* p){
-    p->reversed = !p->reversed;
-}
-
-double ST_Tree::cost(int v){
-    if (v==tail(path(v))){
-        return dcost[v];
-    }
-    else{
-        return pcost(v);
-    }
-}
-
-double ST_Tree::mincost(int v){
-    return pmincost(expose(v));
-}
-
-void ST_Tree::update(int v, double x){
-    return pupdate(expose(v), x);
-}
-
-void ST_Tree::evert(int v){
-    reverse(expose(v));
-    dparent[v] = -1;
-}
-
-std::pair<int, int> ST_Tree::getEdge(ST_Node* eNode)
-{
-    return {tail(eNode->bleft), head(eNode->bright)};
-}
-
-void ST_Tree::displayInternalGraph() {
+// Internal Graph Visualiser
+void ST_Tree::displayInternalGraph(int mode) {
     std::vector<ST_Node*> path_list = getAllUniquePaths(); 
     std::ofstream dot_file("internal_graph.dot");
     dot_file << "digraph G {\n";
@@ -655,6 +682,17 @@ void ST_Tree::displayInternalGraph() {
     dot_file.close();
     std::string command = "dot -Tpng internal_graph.dot -o internal_graphs/i" + std::to_string(++representation_number) + ".png";
     system(command.c_str());
-    // command = "open internal_graphs/i" + std::to_string(representation_number)+ ".png";
-    // system(command.c_str());
+    if (mode == 2)
+    {
+        command = "open internal_graphs/i" + std::to_string(representation_number)+ ".png";
+        system(command.c_str());
+    }
+}
+
+
+
+// Getter for debugging
+ST_Node* ST_Tree::get_vertex_ptr(int vertex_id)
+{
+    return vertices[vertex_id];
 }

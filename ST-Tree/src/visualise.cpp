@@ -1,7 +1,7 @@
 #include "visualise.hpp"
 
     // Function to generate and display the combined graph
-void GraphManager::displayCombinedGraph(std::vector<std::vector<int>> bold_edges, std::vector<std::vector<int>> dashed_edges, std::string filename) {
+void GraphManager::displayCombinedGraph(std::vector<std::vector<int>> bold_edges, std::vector<std::vector<int>> dashed_edges, std::string filename, int mode) {
     
     std::ofstream dot_file("combined_graph.dot");
     dot_file << "digraph G {\n";
@@ -32,8 +32,11 @@ void GraphManager::displayCombinedGraph(std::vector<std::vector<int>> bold_edges
     dot_file.close();
     std::string command = "dot -Tpng combined_graph.dot -o " + filename + ".png";
     system(command.c_str());
-    // command = "open " + filename + ".png";
-    // system(command.c_str());
+    if (mode == 2)
+    {
+        command = "open " + filename + ".png";
+        system(command.c_str());
+    }
 }
 
 

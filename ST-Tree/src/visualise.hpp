@@ -20,5 +20,5 @@ class GraphManager {
     GraphManager(int n):vertices(n) {};
 
     // Function to generate and display the combined graph
-    void displayCombinedGraph(std::vector<std::vector<int>> bold_edges, std::vector<std::vector<int>> dashed_edges, std::string filename);
+    void displayCombinedGraph(std::vector<std::vector<int>> bold_edges, std::vector<std::vector<int>> dashed_edges, std::string filename, int mode);
 };
