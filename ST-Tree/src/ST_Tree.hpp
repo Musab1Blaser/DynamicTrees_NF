@@ -30,7 +30,9 @@ class ST_Tree
     private:
         std::map<int, ST_Node*> vertices; // A map from vertex number to its corresponding node in path tree
         std::map<int, int> dparent; // dashed edges/parents map
-        std::map<int, int> dcost; // cost of dashed edge  --  not handled
+        std::map<int, int> dcost; // cost of dashed edge
+
+        static int representation_number;
 
 
         // Helper Functions

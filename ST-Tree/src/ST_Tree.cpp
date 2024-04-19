@@ -3,6 +3,7 @@
 #include <fstream>
 #include <queue>
 
+int ST_Tree::representation_number = 0;
 
 // Constructors
 ST_Tree::ST_Tree(std::map<int, int>& treePar, int n) // Construct based on input tree/forest and number of nodes (named 1 to n)
@@ -627,8 +628,8 @@ void ST_Tree::displayInternalGraph() {
 
     // Close the file
     dot_file.close();
-    std::string command = "dot -Tpng internal_graph.dot -o internal_graphs.png";
+    std::string command = "dot -Tpng internal_graph.dot -o internal_graphs/i" + std::to_string(++representation_number) + ".png";
     system(command.c_str());
-    command = "open internal_graphs.png";
+    command = "open internal_graphs/i" + std::to_string(representation_number)+ ".png";
     system(command.c_str());
 }
