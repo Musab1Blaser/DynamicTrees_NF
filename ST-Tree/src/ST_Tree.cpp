@@ -407,10 +407,49 @@ void ST_Tree::rotate(ST_Node* v) // rotate a node (representing an edge) upwards
     }
 }
 
+ST_Node* ST_Tree::tilt_left(ST_Node* x) // for node rank management
+{
+    if ((x->bleft->rank == x->bright->rank) && (x->bright->rank == x->rank))
+    {
+        ++x->rank;
+    }
+    else if (x->bright->rank == x->rank)
+    {
+        rotate(x->bright);
+        return x->bparent;
+    }
+    return x;
+}
+
+ST_Node* ST_Tree::tilt_right(ST_Node* x) // for node rank management
+{
+    if ((x->bleft->rank == x->bright->rank) && (x->bright->rank == x->rank))
+    {
+        ++x->rank;
+    }
+    else if (x->bleft->rank == x->rank)
+    {
+        rotate(x->bleft);
+        return x->bparent;
+    }
+    return x;
+}
+
 // Operations
 ST_Node* ST_Tree::concatenate(ST_Node* p, ST_Node* q, double x) // Connect two paths through an edge of cost x 
 {
-    construct(p, q, x);
+    // unoptimized
+    if (!optimized)
+    {
+        construct(p, q, x);
+    }
+
+    // optimized
+    else
+    {
+
+    }
+
     if (debug_mode)
     {
         std::cout << "concatenated " << getEdge(p).first << "-" << getEdge(p).second << " with " << getEdge(q).first << "-" << getEdge(q).second << " | graph num : " << representation_number+1 << std::endl;
@@ -424,20 +463,32 @@ std::tuple<ST_Node*, ST_Node*, double, double> ST_Tree::split(int v) // Break a 
     ST_Node* vNode = vertices[v];
     ST_Node *p {nullptr}, *q {nullptr};
     double x {-1}, y {-1};
-    while (vNode->bparent) // while there are edges connected to me in the path
+
+    // unoptimized
+    if (!optimized)
     {
-        ST_Node* cur = vNode->bparent; // Find an edge connected to me
-        while (cur->bparent) // rotate edge to top to prepare for deletion
-            rotate(cur); 
+        while (vNode->bparent) // while there are edges connected to me in the path
+        {
+            ST_Node* cur = vNode->bparent; // Find an edge connected to me
+            while (cur->bparent) // rotate edge to top to prepare for deletion
+                rotate(cur); 
 
-        // store whether left edge or right edge in path
-        if ((!cur->reversed && tail(cur->bleft) == v) || (cur->reversed && head(cur->bright) == v)) // if i am in left, then the path being separated is from me to above - after(v) to tail(path)
-            q = (cur->reversed) ? cur->bleft : cur->bright, y = cur->netcost + cur->netmin;
-        else if ((!cur->reversed && head(cur->bright) == v) || (cur->reversed && tail(cur->bleft) == v)) // if i am in right, then the path being separated is from me to bottom - from head(path) to before(v)
-            p = (cur->reversed) ? cur->bright : cur->bleft, x = cur->netcost + cur->netmin;
+            // store whether left edge or right edge in path
+            if ((!cur->reversed && tail(cur->bleft) == v) || (cur->reversed && head(cur->bright) == v)) // if i am in left, then the path being separated is from me to above - after(v) to tail(path)
+                q = (cur->reversed) ? cur->bleft : cur->bright, y = cur->netcost + cur->netmin;
+            else if ((!cur->reversed && head(cur->bright) == v) || (cur->reversed && tail(cur->bleft) == v)) // if i am in right, then the path being separated is from me to bottom - from head(path) to before(v)
+                p = (cur->reversed) ? cur->bright : cur->bleft, x = cur->netcost + cur->netmin;
 
-        destroy(cur); // delete edge
+            destroy(cur); // delete edge
+        }
     }
+
+    // optimized
+    else
+    {
+
+    }
+    
     if (debug_mode)
     {
         displayInternalGraph();

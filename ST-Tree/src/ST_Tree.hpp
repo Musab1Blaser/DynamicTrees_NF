@@ -21,7 +21,7 @@ struct ST_Node // Nodes of underlying tree - can represent vertices or edges of 
     bool reversed; //to determine if reverse has occured
 
     // External node/vertex constructor
-    ST_Node(bool ext, int vert) : external{ext}, vertex_id{vert}, bparent{nullptr}, bhead{this}, bleft{this}, bright{this}, btail{this}, reversed{false}, wt{1} {}; 
+    ST_Node(bool ext, int vert) : external{ext}, vertex_id{vert}, bparent{nullptr}, bhead{this}, bleft{this}, bright{this}, btail{this}, reversed{false}, wt{1}, rank{0} {}; 
 
     // to determine cost of node + min edge
     double netmin; 
@@ -63,9 +63,11 @@ class ST_Tree
         std::tuple<ST_Node*, ST_Node*, double> destroy (ST_Node* u);  // Destroy the root of the tree, breaking it into two trees/represented paths 
         
         void rotate(ST_Node* v); // rotate a node (representing an edge) upwards
+        ST_Node* tilt_left(ST_Node* x); // for node rank management
+        ST_Node* tilt_right(ST_Node* x); // for node rank management
 
         // Operations
-        ST_Node* concatenate(ST_Node* p, ST_Node* q, double x); // Connect two paths through an edge of cost x 
+        ST_Node* concatenate(ST_Node* p, ST_Node* q, double x); // Connect two paths through an edge of cost x
         std::tuple<ST_Node*, ST_Node*, double, double> split(int v); // Break a path at a node into path before and path after. Selected node becomes a trivial/single node path 
 
         // Path Partition functions - bold and dashed edges
