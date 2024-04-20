@@ -27,7 +27,7 @@ Third number represents debug mode, 0 - no debugging visualisation, 1 - create g
     std::cout << "How many nodes do you want in the Graph: ";
     std::cin >> nodes;
 
-    ST_Tree ST = ST_Tree(nodes, std::stoi(argv[3])); // Initialise ST-Tree with 6 nodes numbered 1, 2, ..., 6
+    ST_Tree ST = ST_Tree(true, nodes, std::stoi(argv[3])); // Initialise optimized ST-Tree with a specified number of nodes, numbered as: 1, 2, ..., nodes
     GraphManager graph_manager(nodes);
 
     // Sample operations:

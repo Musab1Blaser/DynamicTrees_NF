@@ -13,12 +13,16 @@ struct ST_Node // Nodes of underlying tree - can represent vertices or edges of 
     ST_Node* bparent;
     ST_Node *bleft, *bright;
     ST_Node *bhead, *btail; // bottom-most and top-most nodes in path 
-    
-    // External node/vertex constructor
-    ST_Node(bool ext, int vert) : external{ext}, vertex_id{vert}, bparent{nullptr}, bhead{this}, bleft{this}, bright{this}, btail{this}, reversed{false} {}; 
 
-    bool reversed; //to determine if reverse has occured
+    // for optimization
+    int rank;
+    int wt;
     
+    bool reversed; //to determine if reverse has occured
+
+    // External node/vertex constructor
+    ST_Node(bool ext, int vert) : external{ext}, vertex_id{vert}, bparent{nullptr}, bhead{this}, bleft{this}, bright{this}, btail{this}, reversed{false}, wt{0} {}; 
+
     // to determine cost of node + min edge
     double netmin; 
     double netcost;
@@ -77,13 +81,14 @@ class ST_Tree
         std::pair<int, int> getEdge(ST_Node* eNode); // Get the vertices that this node connects
         bool get_reversal_state(ST_Node* v); // Calculate reversal state of the node
         
-        static int representation_number; // For numbering visualisation images
+        int representation_number; // For numbering visualisation images
         int debug_mode; // Flag to create Visualisations in suboperations
+        bool optimized; // Flag for using optimization
 
     public:
         // Constructors and Destructor
-        ST_Tree(std::map<int, int>& treePar, int n, int debug);  // Construct based on input tree/forest and number of nodes (named 1 to n)
-        ST_Tree(int n, int debug);
+        ST_Tree(bool optim, std::map<int, int>& treePar, int n, int debug);  // Construct based on input tree/forest and number of nodes (named 1 to n)
+        ST_Tree(bool optim, int n, int debug);
         
          // Create tree of n unconnected nodes (named 1 to n)
         // ~ST_Tree(); // To implement

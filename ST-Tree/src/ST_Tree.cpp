@@ -3,11 +3,11 @@
 #include <fstream>
 #include <queue>
 
-int ST_Tree::representation_number = 0;
-
 // Constructors
-ST_Tree::ST_Tree(std::map<int, int>& treePar, int n, int debug) // Construct based on input tree/forest and number of nodes (named 1 to n)
+ST_Tree::ST_Tree(bool optim, std::map<int, int>& treePar, int n, int debug) // Construct based on input tree/forest and number of nodes (named 1 to n)
 {
+    optimized = optim;
+
     for (int i = 1; i <= n; i++)
     {
         vertices[i] = new ST_Node(true, i);
@@ -20,14 +20,18 @@ ST_Tree::ST_Tree(std::map<int, int>& treePar, int n, int debug) // Construct bas
     }
 
     debug_mode = debug;
+    representation_number = 0;
 }
 
-ST_Tree::ST_Tree(int n, int debug) // Create tree of n unconnected nodes (named 1 to n)
+ST_Tree::ST_Tree(bool optim, int n, int debug) // Create tree of n unconnected nodes (named 1 to n)
 { 
+    optimized = optim;
+    
     for (int i = 1; i <= n; i++)
         vertices[i] = new ST_Node(true, i), dparent[i] = -1;
     
     debug_mode = debug;
+    representation_number = 0;
 }
 
 // Elemntary Path operations
