@@ -438,24 +438,68 @@ ST_Node* ST_Tree::tilt_right(ST_Node* x) // for node rank management
 // Operations
 ST_Node* ST_Tree::concatenate(ST_Node* p, ST_Node* q, double x) // Connect two paths through an edge of cost x 
 {
+    std::vector<int> conc_paths = {getEdge(p).first, getEdge(p).second, getEdge(q).first, getEdge(q).second};
+
     // unoptimized
     if (!optimized)
     {
         construct(p, q, x);
+        p = p->bparent;
     }
 
     // optimized
     else
     {
+        if ((p->rank == q->rank) || (p->rank > q->rank && p->external) || (p->rank < q->rank && q->external)) // Case 1
+        {
+            construct(p, q, x);
+            p->bparent->rank = std::max(p->rank, q->rank) + 1;
+            p = p->bparent;
+        }
+        else if (p->rank > q->rank && !(p->external)) // Case 2
+        {
+            p = tilt_left(p);
+            
+            ST_Node* y = p->bleft;
+            ST_Node* z = p->bright;
+            int c = p->netcost + p->netmin;
+            int r = p->rank;
 
+            // delete node and rebuild it later to maintain cost and reversal state
+            destroy(p); // delete p
+
+            ST_Node* u = concatenate(z, q, x); // local join (z, q)
+
+            construct(y, u, c); // reconstruct p
+            p = y->bparent;
+            p->rank = r;
+        }
+        else if (p->rank < q->rank && !(q->external)) // Case 3
+        {
+            p = tilt_right(p);
+            
+            ST_Node* y = p->bleft;
+            ST_Node* z = p->bright;
+            int c = p->netcost + p->netmin;
+            int r = p->rank;
+
+            // delete node and rebuild it later to maintain cost and reversal state
+            destroy(p); // delete p
+
+            ST_Node* u = concatenate(q, y, x); // local join (z, q)
+
+            construct(u, z, c); // reconstruct p
+            p = y->bparent;
+            p->rank = r;
+        }
     }
 
     if (debug_mode)
     {
-        std::cout << "concatenated " << getEdge(p).first << "-" << getEdge(p).second << " with " << getEdge(q).first << "-" << getEdge(q).second << " | graph num : " << representation_number+1 << std::endl;
+        std::cout << "concatenated " << conc_paths[0] << "-" << conc_paths[1] << " with " << conc_paths[2] << "-" << conc_paths[3] << " | graph num : " << representation_number+1 << std::endl;
         displayInternalGraph();
     }
-    return p->bparent;
+    return p;
 }
 
 std::tuple<ST_Node*, ST_Node*, double, double> ST_Tree::split(int v) // Break a path at a node into path before and path after. Selected node becomes a trivial/single node path
