@@ -451,10 +451,13 @@ ST_Node* ST_Tree::splice(ST_Node* p) // Extend current bold path upwards by conv
 {
     int v = dparent[tail(p)]; // find node above me outside my path
     auto [q, r, x, y] = split(v); // r is path to root
+    // note that weight of a path is the same as the size of tail(p) since it is essentially the sum of the weights of all the vertices in the path - this creates a telescoping sum that leaves us with size(tail(p))
+    vertices[v]->wt -= p->wt; // subtract size of node below v (tail(p)) 
     if (q) // q is other downward path
     {
         dparent[tail(q)] = v; // make it dashed
         dcost[tail(q)] = x;
+        vertices[v]->wt += q->wt; // add the size of the node previously connected to v
     }
 
     dparent[tail(p)] = -1; // dashed edge removed
@@ -484,6 +487,7 @@ ST_Node* ST_Tree::expose(int v) // Create bold path from this node to root of tr
     {
         dparent[tail(q)] = v; // then make me its dashed parent
         dcost[tail(q)] = x;
+        vertices[v]->wt += q->wt; // add the size of the node previously connected to v
     }
     // connect me upwards
     ST_Node* p; 
