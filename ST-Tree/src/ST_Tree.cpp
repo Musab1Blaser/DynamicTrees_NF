@@ -153,10 +153,10 @@ double ST_Tree::pmincost(ST_Node* p){ // Return the vertex closest to tail(p) su
     ST_Node* u = p;
 
     bool rev = get_reversal_state(u);
-    while (u->netcost !=0 or !(!rev && (u->bright->external or u->bright->netmin >=0)) or !(rev && (u->bleft->external or u->bleft->netmin >= 0))){
+    while (u->netcost !=0 && !((!rev && (u->bright->external || u->bright->netmin >0)) || (rev && (u->bleft->external || u->bleft->netmin > 0)))){
         if (!rev){
-            if (!u->bright->external and u->bright->netcost==0){
-            u = u->bright;
+            if (!u->bright->external && u->bright->netcost==0){
+                u = u->bright;
             }
             else if (u->netcost > 0){
                 u = u->bleft;
@@ -164,7 +164,7 @@ double ST_Tree::pmincost(ST_Node* p){ // Return the vertex closest to tail(p) su
             rev ^= u->reversed;
         }
         else{
-            if (!u->bleft->external and u->bleft->netcost==0){
+            if (!u->bleft->external && u->bleft->netcost==0){
             u = u->bleft;
             }
             else if (u->netcost > 0){
@@ -252,8 +252,8 @@ std::tuple<ST_Node*, ST_Node*, double> ST_Tree::destroy (ST_Node* u) // Destroy 
 
     if (u->reversed) // if the node I am destroying is reversed, then reverse both children
     {
-        u->bright->reversed = !u->bright->reversed;
-        u->bleft->reversed = !u->bleft->reversed;
+        if (!u->bright->external) u->bright->reversed = !u->bright->reversed;
+        if (!u->bleft->external) u->bleft->reversed = !u->bleft->reversed;
     }
 
     // remove references to u and delete u
@@ -413,9 +413,14 @@ ST_Node* ST_Tree::tilt_left(ST_Node* x) // for node rank management
     {
         ++x->rank;
     }
-    else if (x->bright->rank == x->rank)
+    else if (!x->reversed && x->bright->rank == x->rank)
     {
         rotate(x->bright);
+        return x->bparent;
+    }
+    else if (x->reversed && x->bleft->rank == x->rank)
+    {
+        rotate(x->bleft);
         return x->bparent;
     }
     return x;
@@ -427,9 +432,14 @@ ST_Node* ST_Tree::tilt_right(ST_Node* x) // for node rank management
     {
         ++x->rank;
     }
-    else if (x->bleft->rank == x->rank)
+    else if (!x->reversed && x->bleft->rank == x->rank)
     {
         rotate(x->bleft);
+        return x->bparent;
+    }
+    else if (x->reversed && x->bright->rank == x->rank)
+    {
+        rotate(x->bright);
         return x->bparent;
     }
     return x;
@@ -460,8 +470,8 @@ ST_Node* ST_Tree::concatenate(ST_Node* p, ST_Node* q, double x) // Connect two p
         {
             p = tilt_left(p);
             
-            ST_Node* y = p->bleft;
-            ST_Node* z = p->bright;
+            ST_Node* y = (!p->reversed) ? p->bleft : p->bright;
+            ST_Node* z = (p->reversed) ? p->bleft : p->bright;
             int c = p->netcost + p->netmin;
             int r = p->rank;
 
@@ -476,25 +486,22 @@ ST_Node* ST_Tree::concatenate(ST_Node* p, ST_Node* q, double x) // Connect two p
         }
         else if (p->rank < q->rank && !(q->external)) // Case 3
         {
-            p = tilt_right(p);
+            q = tilt_right(q);
             
-            ST_Node* y = p->bleft;
-            ST_Node* z = p->bright;
-            int c = p->netcost + p->netmin;
-            int r = p->rank;
+            ST_Node* y = (!q->reversed) ? q->bleft : q->bright;
+            ST_Node* z = (q->reversed) ? q->bleft : q->bright;
+            int c = q->netcost + q->netmin;
+            int r = q->rank;
 
             // delete node and rebuild it later to maintain cost and reversal state
-            destroy(p); // delete p
+            destroy(q); // delete q
 
-            ST_Node* u = concatenate(z, q, x); // local join (z, q)
+            ST_Node* u = concatenate(p, y, x); // local join (p, y)
 
-            construct(y, u, c); // reconstruct p
+            construct(u, z, c); // reconstruct p
 
-            // ST_Node* u = concatenate(q, y, x); // local join (z, q)
-
-            // construct(u, z, c); // reconstruct p
-            p = y->bparent;
-            p->rank = r;
+            q->rank = r;
+            p = z->bparent;
         }
     }
 
@@ -534,67 +541,72 @@ std::tuple<ST_Node*, ST_Node*, double, double> ST_Tree::split(int v) // Break a 
     // optimized
     else
     {
-        std::queue<ST_Node*> pList;
-        std::queue<double> pCosts;
-        std::queue<ST_Node*> qList;
-        std::queue<double> qCosts;
-        std::vector<ST_Node*> parList;
-
-        parList.push_back(vNode);
-        vNode = vNode->bparent; // ignore external node
-        double curMin = grossmin(vNode);
-        while (vNode)
+        if (vNode->bparent)
         {
-            if (vNode->bright == parList.back()) // if i was a right child
-            {
-                if (pList.size())
-                    pCosts.push(vNode->netcost + curMin);
-                else
-                    x = vNode->netcost + curMin;
-                pList.push(vNode->bleft);
-            }
-            else // if i was a left child
-            {
-                if (qList.size())
-                    qCosts.push(vNode->netcost + curMin);
-                else
-                    y = vNode->netcost + curMin;
-                qList.push(vNode->bright);
+            std::queue<ST_Node*> pList;
+            std::queue<double> pCosts;
+            std::queue<ST_Node*> qList;
+            std::queue<double> qCosts;
+            std::vector<ST_Node*> parList;
 
-            }
 
             parList.push_back(vNode);
-            curMin -= vNode->netmin;
-            vNode = vNode->bparent;
-        }
-
-        while (parList.size() > 1) // ignore external node - that's why we stop at 1 
-        {
-            destroy(parList.back());
-            parList.pop_back();
-        }
-
-        if (pList.size())
-        {
-            p = pList.front();
-            pList.pop();
-            while (pList.size())
+            vNode = vNode->bparent; // ignore external node
+            double curMin = grossmin(vNode);
+            bool rev = get_reversal_state(vNode);
+            while (vNode)
             {
-                concatenate(pList.front(), p, pCosts.front());
-                pList.pop();
-                pCosts.pop();
+                if (vNode->bright == parList.back() ^ rev) // if i was a right child
+                {
+                    if (pList.size())
+                        pCosts.push(vNode->netcost + curMin);
+                    else
+                        x = vNode->netcost + curMin;
+                    pList.push((!rev) ? vNode->bleft : vNode->bright);
+                }
+                else // if i was a left child
+                {
+                    if (qList.size())
+                        qCosts.push(vNode->netcost + curMin);
+                    else
+                        y = vNode->netcost + curMin;
+                    qList.push((!rev) ? vNode->bright : vNode->bleft);
+
+                }
+
+                parList.push_back(vNode);
+                curMin -= vNode->netmin;
+                vNode = vNode->bparent;
             }
-        }
 
-        if (qList.size())
-        {
-            q = qList.front();
-            qList.pop();
-            while (qList.size())
+            while (parList.size() > 1) // ignore external node - that's why we stop at 1 
             {
-                concatenate(q, qList.front(), qCosts.front());
+                destroy(parList.back());
+                parList.pop_back();
+            }
+
+            if (pList.size())
+            {
+                p = pList.front();
+                pList.pop();
+                while (pList.size())
+                {
+                    concatenate(pList.front(), p, pCosts.front());
+                    pList.pop();
+                    pCosts.pop();
+                }
+            }
+
+            if (qList.size())
+            {
+                q = qList.front();
                 qList.pop();
-                qCosts.pop();
+                while (qList.size())
+                {
+                    concatenate(q, qList.front(), qCosts.front());
+                    qList.pop();
+                    qCosts.pop();
+                }
             }
         }
     }
