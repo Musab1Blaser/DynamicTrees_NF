@@ -21,7 +21,7 @@ struct ST_Node // Nodes of underlying tree - can represent vertices or edges of 
     bool reversed; //to determine if reverse has occured
 
     // External node/vertex constructor
-    ST_Node(bool ext, int vert) : external{ext}, vertex_id{vert}, bparent{nullptr}, bhead{this}, bleft{this}, bright{this}, btail{this}, reversed{false}, wt{0} {}; 
+    ST_Node(bool ext, int vert) : external{ext}, vertex_id{vert}, bparent{nullptr}, bhead{this}, bleft{this}, bright{this}, btail{this}, reversed{false}, wt{1} {}; 
 
     // to determine cost of node + min edge
     double netmin; 

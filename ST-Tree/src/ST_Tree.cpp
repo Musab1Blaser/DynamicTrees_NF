@@ -26,7 +26,7 @@ ST_Tree::ST_Tree(bool optim, std::map<int, int>& treePar, int n, int debug) // C
 ST_Tree::ST_Tree(bool optim, int n, int debug) // Create tree of n unconnected nodes (named 1 to n)
 { 
     optimized = optim;
-    
+
     for (int i = 1; i <= n; i++)
         vertices[i] = new ST_Node(true, i), dparent[i] = -1;
     
@@ -219,6 +219,9 @@ void ST_Tree::construct(ST_Node* v, ST_Node* w, double x) // Create a new node c
     w->bparent = u; 
     u->btail = vertices[tail(w)];
 
+    // set my weight
+    u->wt = v->wt + w->wt;
+
     // update costs
     // update netmin - min is min of myself and both my children
     u->netmin = x;
@@ -392,6 +395,10 @@ void ST_Tree::rotate(ST_Node* v) // rotate a node (representing an edge) upwards
         bool tmp = u->reversed; // if u was reversed, if i set v to be reversed, this has the same effect as the new subtree of v has the same nodes as the old subtree of u
         u->reversed = v->reversed;
         v->reversed = tmp;
+
+        // update weights
+        v->wt = u->wt;
+        u->wt = u->bleft->wt + u->bright->wt;
     }
     if (debug_mode)
     {
