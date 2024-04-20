@@ -486,9 +486,13 @@ ST_Node* ST_Tree::concatenate(ST_Node* p, ST_Node* q, double x) // Connect two p
             // delete node and rebuild it later to maintain cost and reversal state
             destroy(p); // delete p
 
-            ST_Node* u = concatenate(q, y, x); // local join (z, q)
+            ST_Node* u = concatenate(z, q, x); // local join (z, q)
 
-            construct(u, z, c); // reconstruct p
+            construct(y, u, c); // reconstruct p
+
+            // ST_Node* u = concatenate(q, y, x); // local join (z, q)
+
+            // construct(u, z, c); // reconstruct p
             p = y->bparent;
             p->rank = r;
         }
@@ -505,8 +509,8 @@ ST_Node* ST_Tree::concatenate(ST_Node* p, ST_Node* q, double x) // Connect two p
 std::tuple<ST_Node*, ST_Node*, double, double> ST_Tree::split(int v) // Break a path at a node into path before and path after. Selected node becomes a trivial/single node path
 {
     ST_Node* vNode = vertices[v];
-    ST_Node *p {nullptr}, *q {nullptr};
-    double x {-1}, y {-1};
+    ST_Node *p {nullptr}, *q {nullptr}; // left / right or below / above
+    double x {-1}, y {-1}; // cost of edge to left / right or below / above
 
     // unoptimized
     if (!optimized)
@@ -530,7 +534,69 @@ std::tuple<ST_Node*, ST_Node*, double, double> ST_Tree::split(int v) // Break a 
     // optimized
     else
     {
+        std::queue<ST_Node*> pList;
+        std::queue<double> pCosts;
+        std::queue<ST_Node*> qList;
+        std::queue<double> qCosts;
+        std::vector<ST_Node*> parList;
 
+        parList.push_back(vNode);
+        vNode = vNode->bparent; // ignore external node
+        double curMin = grossmin(vNode);
+        while (vNode)
+        {
+            if (vNode->bright == parList.back()) // if i was a right child
+            {
+                if (pList.size())
+                    pCosts.push(vNode->netcost + curMin);
+                else
+                    x = vNode->netcost + curMin;
+                pList.push(vNode->bleft);
+            }
+            else // if i was a left child
+            {
+                if (qList.size())
+                    qCosts.push(vNode->netcost + curMin);
+                else
+                    y = vNode->netcost + curMin;
+                qList.push(vNode->bright);
+
+            }
+
+            parList.push_back(vNode);
+            curMin -= vNode->netmin;
+            vNode = vNode->bparent;
+        }
+
+        while (parList.size() > 1) // ignore external node - that's why we stop at 1 
+        {
+            destroy(parList.back());
+            parList.pop_back();
+        }
+
+        if (pList.size())
+        {
+            p = pList.front();
+            pList.pop();
+            while (pList.size())
+            {
+                concatenate(pList.front(), p, pCosts.front());
+                pList.pop();
+                pCosts.pop();
+            }
+        }
+
+        if (qList.size())
+        {
+            q = qList.front();
+            qList.pop();
+            while (qList.size())
+            {
+                concatenate(q, qList.front(), qCosts.front());
+                qList.pop();
+                qCosts.pop();
+            }
+        }
     }
     
     if (debug_mode)
