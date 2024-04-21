@@ -1,9 +1,6 @@
 digraph G {
-2 -> 1 [style=bold, label=16];
-6 -> 4 [style=bold, label=20];
-4 -> 5 [style=bold, label=7];
-5 -> 3 [style=bold, label=14];
-3 -> 2 [style=dashed, label=10];
+6 -> 4 [style=bold, label=3];
+4 -> 2 [style=bold, label=2];
 1; 
 2; 
 3; 

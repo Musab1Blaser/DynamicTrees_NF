@@ -20,20 +20,25 @@ std::vector<std::map<int, int>> adj) {
     ST_Tree* tree = new ST_Tree(false, n-1, 0);
     std::vector<std::map<int, int>> inv = adj_inv(adj);
     std::vector<std::map<int, int>> adj_copy = adj_inv(inv);
+    int flow = 0;
     while (true){
         int v = tree->root(s);
         if (v==t){
             v = tree->mincost(s);
             int c = tree->cost(v);
             tree->update(s, -c);
+            flow += c;
             g->displayCombinedGraph(tree->getAllEdges(), tree->getAllDashEdges(), "flow", 0);
-            while(tree->cost(v) == 0){
+            while(true){
                 v = tree->mincost(s);
-                tree->cut(v);
+                if (tree->cost(v) == 0)
+                    tree->cut(v);
+                else
+                    break;
                 g->displayCombinedGraph(tree->getAllEdges(), tree->getAllDashEdges(), "flow", 0);
             }
         }
-        else if (adj[v].begin() == adj[v].end()){
+        else if (adj_copy[v].begin() == adj_copy[v].end()){
             if (v==s){
                 break;
             }
@@ -66,14 +71,13 @@ std::vector<std::map<int, int>> adj) {
             g->displayCombinedGraph(tree->getAllEdges(), tree->getAllDashEdges(), "flow", 0);
         }
     }
-    int flow = 0;
-    for (int v = 0; v < n; v++){
-        if (v!=t){
-            if (t == tree->parent(v)){
-                flow+=adj[t][v]-tree->cost(v);
-            }
-        }
-    }
+    // for (int v = 1; v < n; v++){
+    //     if (v!=t){
+    //         if (t == tree->parent(v)){
+    //             flow+=adj[t][v]-tree->cost(v);
+    //         }
+    //     }
+    // }
     return flow;
 }
 
