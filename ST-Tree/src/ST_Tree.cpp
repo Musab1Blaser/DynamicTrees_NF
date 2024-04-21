@@ -2,6 +2,7 @@
 #include <algorithm>
 #include <fstream>
 #include <queue>
+#include <cmath>
 
 // Constructors
 ST_Tree::ST_Tree(bool optim, std::map<int, int>& treePar, int n, int debug) // Construct based on input tree/forest and number of nodes (named 1 to n)
@@ -627,12 +628,15 @@ ST_Node* ST_Tree::splice(ST_Node* p) // Extend current bold path upwards by conv
     auto [q, r, x, y] = split(v); // r is path to root
     // note that weight of a path is the same as the size of tail(p) since it is essentially the sum of the weights of all the vertices in the path - this creates a telescoping sum that leaves us with size(tail(p))
     vertices[v]->wt -= p->wt; // subtract size of node below v (tail(p)) 
+    vertices[v]->rank = (int) log2(vertices[v]->wt);
     if (q) // q is other downward path
     {
         dparent[tail(q)] = v; // make it dashed
         dcost[tail(q)] = x;
         vertices[v]->wt += q->wt; // add the size of the node previously connected to v
     }
+
+    vertices[v]->rank = (int) log2(vertices[v]->wt); // update rank of v
 
     dparent[tail(p)] = -1; // dashed edge removed
     p = concatenate(p, path(v), dcost[tail(p)]); // connect me to the node above me
@@ -663,6 +667,8 @@ ST_Node* ST_Tree::expose(int v) // Create bold path from this node to root of tr
         dcost[tail(q)] = x;
         vertices[v]->wt += q->wt; // add the size of the node previously connected to v
     }
+    vertices[v]->rank = (int) log2(vertices[v]->wt); // update rank of v
+
     // connect me upwards
     ST_Node* p; 
     if (r)
