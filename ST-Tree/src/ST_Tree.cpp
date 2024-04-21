@@ -8,6 +8,7 @@
 ST_Tree::ST_Tree(bool optim, std::map<int, int>& treePar, int n, int debug) // Construct based on input tree/forest and number of nodes (named 1 to n)
 {
     optimized = optim;
+    debug_mode = 0;
 
     for (int i = 1; i <= n; i++)
     {
