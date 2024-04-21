@@ -155,9 +155,9 @@ double ST_Tree::pmincost(ST_Node* p){ // Return the vertex closest to tail(p) su
     ST_Node* u = p;
 
     bool rev = get_reversal_state(u);
-    while (u->netcost !=0 && !((!rev && (u->bright->external || u->bright->netmin >0)) || (rev && (u->bleft->external || u->bleft->netmin > 0)))){
+    while (u->netcost !=0 || !((!rev && (u->bright->external || u->bright->netmin >0)) || (rev && (u->bleft->external || u->bleft->netmin > 0)))){
         if (!rev){
-            if (!u->bright->external && u->bright->netcost==0){
+            if (!u->bright->external && u->bright->netmin==0){
                 u = u->bright;
             }
             else if (u->netcost > 0){
@@ -166,7 +166,7 @@ double ST_Tree::pmincost(ST_Node* p){ // Return the vertex closest to tail(p) su
             rev ^= u->reversed;
         }
         else{
-            if (!u->bleft->external && u->bleft->netcost==0){
+            if (!u->bleft->external && u->bleft->netmin==0){
             u = u->bleft;
             }
             else if (u->netcost > 0){

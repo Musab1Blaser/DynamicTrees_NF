@@ -6,7 +6,7 @@
 
 
 int main(){
-    std::vector<std::map<int, int>> adj (6);
+    std::vector<std::map<int, int>> adj (7);
     adj[1][2] = 16;
     adj[1][3] = 13;
     adj[2][3] = 10;
