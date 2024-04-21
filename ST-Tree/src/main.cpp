@@ -27,7 +27,7 @@ Third number represents debug mode, 0 - no debugging visualisation, 1 - create g
     std::cout << "How many nodes do you want in the Graph: ";
     std::cin >> nodes;
 
-    ST_Tree ST = ST_Tree(true, nodes, std::stoi(argv[3])); // Initialise optimized ST-Tree with a specified number of nodes, numbered as: 1, 2, ..., nodes
+    ST_Tree ST = ST_Tree(false, nodes, std::stoi(argv[3])); // Initialise optimized ST-Tree with a specified number of nodes, numbered as: 1, 2, ..., nodes
     GraphManager graph_manager(nodes);
 
     // Sample operations:
@@ -44,11 +44,11 @@ Third number represents debug mode, 0 - no debugging visualisation, 1 - create g
     ST.cut(2);
     ST.link(3,4,1);
     ST.link(7,6,3);
-    // ST.link(2,10,1);
-    // ST.evert(6); - next error
-    // ST.evert(5);
-    // ST.evert(4);
-    // ST.evert(6);
+    ST.link(2,10,1);
+    ST.evert(6); 
+    ST.evert(5);
+    ST.evert(4);
+    ST.evert(6);
     
     int op_num = 0;
     std::string opt {"_"};
