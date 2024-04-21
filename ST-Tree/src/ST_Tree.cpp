@@ -500,10 +500,11 @@ ST_Node* ST_Tree::concatenate(ST_Node* p, ST_Node* q, double x) // Connect two p
 
             ST_Node* u = concatenate(p, y, x); // local join (p, y)
 
-            construct(u, z, c); // reconstruct p
+            construct(u, z, c); // reconstruct q
 
+            q = z->bparent;
             q->rank = r;
-            p = z->bparent;
+            p = q;
         }
     }
 
