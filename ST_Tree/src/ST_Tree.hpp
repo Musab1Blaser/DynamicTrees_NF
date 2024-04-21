@@ -17,6 +17,7 @@ struct ST_Node // Nodes of underlying tree - can represent vertices or edges of 
     // for optimization
     int rank;
     int wt;
+    int level;
     
     bool reversed; //to determine if reverse has occured
 
@@ -112,10 +113,14 @@ class ST_Tree
         // Visualisation Helper Functions
         std::vector<std::vector<int>> getAllEdges(); // Return all edges in the tree
         std::vector<std::vector<int>> getAllDashEdges(); // Return all dashed edges in the tree
+        // std::vector<std::vector<int>> getAllDashEdges(int n); // Return all dashed edges in the tree
         
         // Internal Graph Visualiser
         void displayInternalGraph(int mode = 0);
 
         // Getter for debugging
         ST_Node* get_vertex_ptr(int vertex_id); // Return node for a given vertex - handy for debugging
+        
+        // void bfs(int source); // Perform BFS on the tree
+        // void dfs(ST_Node* u, int t, double flow); // Perform DFS on the tree
 };

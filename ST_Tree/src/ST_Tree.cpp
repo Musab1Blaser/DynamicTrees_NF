@@ -818,6 +818,7 @@ std::vector<std::vector<int>> ST_Tree::getAllDashEdges(){
     return edges;
 };
 
+
 // Internal Graph Visualiser
 void ST_Tree::displayInternalGraph(int mode) {
     std::vector<ST_Node*> path_list = getAllUniquePaths(); 
