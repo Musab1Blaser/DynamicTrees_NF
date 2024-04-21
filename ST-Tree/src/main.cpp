@@ -45,7 +45,7 @@ Third number represents debug mode, 0 - no debugging visualisation, 1 - create g
     ST.link(3,4,1);
     ST.link(7,6,3);
     // ST.link(2,10,1);
-    // ST.evert(6);
+    // ST.evert(6); - next error
     // ST.evert(5);
     // ST.evert(4);
     // ST.evert(6);
