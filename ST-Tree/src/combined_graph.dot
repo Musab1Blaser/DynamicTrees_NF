@@ -1,4 +1,13 @@
 digraph G {
+6 -> 5 [style=bold, label=3];
+5 -> 2 [style=bold, label=9];
+2 -> 4 [style=bold, label=6];
+3 -> 1 [style=bold, label=7];
+4 -> 3 [style=dashed, label=1];
+6 -> 7 [style=dashed, label=3];
+1 -> 8 [style=dashed, label=5];
+8 -> 9 [style=dashed, label=10];
+2 -> 10 [style=dashed, label=1];
 1; 
 2; 
 3; 

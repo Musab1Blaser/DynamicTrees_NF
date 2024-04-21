@@ -835,11 +835,11 @@ void ST_Tree::displayInternalGraph(int mode) {
             if (!cur->external)
             {
                 std::pair<int, int> edgeName = getEdge(cur);
-                dot_file << "\"(" << edgeName.first << "," << edgeName.second <<  ((cur->reversed) ? ")*" : ")") << "\" [shape=box];\n"; // create internal node shape
+                dot_file << "\"(" << edgeName.first << "," << edgeName.second <<  ((cur->reversed) ? ")*" : ")") << "\" [shape=box" << ((optimized) ? ",xlabel=" + std::to_string(cur->rank) : "") << "];\n"; // create internal node shape
                 // left child connection
                 if (cur->bleft->external) // if external
                 {
-                    dot_file << cur->bleft->vertex_id << " [shape=circle];\n";
+                    dot_file << cur->bleft->vertex_id << " [shape=circle" << ((optimized) ? ",xlabel=" + std::to_string(cur->bleft->rank) : "") << "];\n";
                     dot_file << "\"(" << edgeName.first << "," << edgeName.second <<  ((cur->reversed) ? ")*" : ")") << "\" -> " << cur->bleft->vertex_id << " [label=l];\n";
                 }
                 else // if internal
@@ -852,7 +852,7 @@ void ST_Tree::displayInternalGraph(int mode) {
                 // right child connection
                 if (cur->bright->external) // if external
                 {
-                    dot_file << cur->bright->vertex_id << " [shape=circle];\n";
+                    dot_file << cur->bright->vertex_id << " [shape=circle" << ((optimized) ? ",xlabel=" + std::to_string(cur->bright->rank) : "") << "];\n";
                     dot_file << "\"(" << edgeName.first << "," << edgeName.second <<  ((cur->reversed) ? ")*" : ")") << "\" -> " << cur->bright->vertex_id << " [label=r];\n";
                 }
                 else // if internal
@@ -867,7 +867,7 @@ void ST_Tree::displayInternalGraph(int mode) {
                 dot_file << "\"(" << edgeName.first << "," << edgeName.second <<  ((cur->reversed) ? ")*" : ")") << "\" -> " << cur->btail->vertex_id << " [style=dashed, label = t];\n";
             }
             else
-                dot_file << cur->vertex_id << " [shape=circle];\n";
+                dot_file << cur->vertex_id << " [shape=circle" << ((optimized) ? ",xlabel=" + std::to_string(cur->rank) : "") << "];\n";
         }
     }
 
