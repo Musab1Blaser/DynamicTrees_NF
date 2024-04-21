@@ -576,6 +576,7 @@ std::tuple<ST_Node*, ST_Node*, double, double> ST_Tree::split(int v) // Break a 
 
                 parList.push_back(vNode);
                 curMin -= vNode->netmin;
+                rev ^= vNode->reversed;
                 vNode = vNode->bparent;
             }
 
@@ -591,7 +592,7 @@ std::tuple<ST_Node*, ST_Node*, double, double> ST_Tree::split(int v) // Break a 
                 pList.pop();
                 while (pList.size())
                 {
-                    concatenate(pList.front(), p, pCosts.front());
+                    p = concatenate(pList.front(), p, pCosts.front());
                     pList.pop();
                     pCosts.pop();
                 }
@@ -603,7 +604,7 @@ std::tuple<ST_Node*, ST_Node*, double, double> ST_Tree::split(int v) // Break a 
                 qList.pop();
                 while (qList.size())
                 {
-                    concatenate(q, qList.front(), qCosts.front());
+                    q = concatenate(q, qList.front(), qCosts.front());
                     qList.pop();
                     qCosts.pop();
                 }

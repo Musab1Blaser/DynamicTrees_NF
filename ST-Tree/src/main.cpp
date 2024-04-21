@@ -23,6 +23,10 @@ Second number represents visualisation mode of internal graph, 0 - no visualisat
 Third number represents debug mode, 0 - no debugging visualisation, 1 - create graph + provide log after certain internal operations");
         return 0;
     }
+    
+    system("rm internal_graphs/*");
+    system("rm graph_results/*");
+
     int nodes;
     std::cout << "How many nodes do you want in the Graph: ";
     std::cin >> nodes;
@@ -44,10 +48,10 @@ Third number represents debug mode, 0 - no debugging visualisation, 1 - create g
     ST.cut(2);
     ST.link(3,4,1);
     ST.link(7,6,3);
-    // ST.link(2,10,1);
-    // ST.evert(6); - next error
-    // ST.evert(5);
-    // ST.evert(4);
+    ST.link(2,10,1);
+    ST.evert(6); // - next error
+    ST.evert(5);
+    ST.evert(4);
     // ST.evert(6);
     
     int op_num = 0;
