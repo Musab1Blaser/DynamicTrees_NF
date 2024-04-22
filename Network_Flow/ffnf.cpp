@@ -2,7 +2,7 @@
 #include "ffnf.hpp"
 
 
-int fordFulkerson(vector<map<int, int> >& graph, int source, int sink) {
+int fordFulkerson(std::vector<std::map<int, std::pair<int, int>>>& graph, int source, int sink) {
     unordered_map<int, int> parent;
     for (int i = 1; i < graph.size() + 1; i++){
         parent[i] = -1;
@@ -17,7 +17,7 @@ int fordFulkerson(vector<map<int, int> >& graph, int source, int sink) {
             int u = q.front();
             q.pop();
             for (auto& [node, cost] : graph[u]) {
-                if (visited.count(node) || cost <= 0) {
+                if (visited.count(node) || cost.first <= 0) {
                     continue;
                 }
                 visited.insert(node);
@@ -35,7 +35,7 @@ int fordFulkerson(vector<map<int, int> >& graph, int source, int sink) {
         int pathFlow = 1000000000;
         int v = sink;
         while (v != source) {
-            pathFlow = min(pathFlow, graph[parent[v]][v]);
+            pathFlow = min(pathFlow, graph[parent[v]][v].first);
             v = parent[v];
         }
         maxFlow += pathFlow;
@@ -43,14 +43,14 @@ int fordFulkerson(vector<map<int, int> >& graph, int source, int sink) {
         while (v != source) {
             int u = parent[v];
             if (graph[u].count(v)) {
-                graph[u][v] -= pathFlow;
+                graph[u][v].first -= pathFlow;
             } else {
-                graph[u][v] = -pathFlow;
+                graph[u][v].first = -pathFlow;
             }
             if (graph[v].count(u)) {
-                graph[v][u] += pathFlow;
+                graph[v][u].first += pathFlow;
             } else {
-                graph[v][u] = pathFlow;
+                graph[v][u].first = pathFlow;
             }
             v = parent[v];
         }

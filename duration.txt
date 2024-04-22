@@ -1,0 +1,11 @@
+x: 50, y: 0.000202503 seconds
+x: 100, y: 0.00082742 seconds
+x: 200, y: 0.00734875 seconds
+x: 300, y: 0.0438593 seconds
+x: 400, y: 0.0744742 seconds
+x: 500, y: 0.0522831 seconds
+x: 600, y: 0.33496 seconds
+x: 700, y: 0.288239 seconds
+x: 800, y: 0.435617 seconds
+x: 900, y: 0.872973 seconds
+x: 1000, y: 0.601506 seconds
