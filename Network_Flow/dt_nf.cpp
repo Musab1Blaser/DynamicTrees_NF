@@ -122,6 +122,7 @@ std::vector<int>& start, std::vector<int>& level) {
                     adj[v][tree->parent(v)].second += change;
                     adj[tree->parent(v)][v].second -= change;
                     tree->cut(v);
+
                 }
                 else
                     break;
@@ -165,6 +166,7 @@ std::vector<int>& start, std::vector<int>& level) {
                             adj[j][i].second -= change;
                             tree->cut(i);
                         }
+                    break;
                 }
                 else
                 {
