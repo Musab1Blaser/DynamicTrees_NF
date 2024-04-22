@@ -1,7 +1,7 @@
 #include "dt_nf.hpp"
 
 void addRevEdges(std::vector<std::map<int, std::pair<int, int>>>& adj){
-    int n = adj.size() - 1;
+    int n = adj.size();
     // std::cout << n << std::endl;
     for (int v = 1; v < n; v++){
         for (const auto& [u, c]: adj[v]){
@@ -13,17 +13,6 @@ void addRevEdges(std::vector<std::map<int, std::pair<int, int>>>& adj){
         }
     }
 }
-
-std::vector<std::map<int, std::pair<int, int>>> adj_inv(const std::vector<std::map<int, std::pair<int, int>>>& adj){
-    int n = adj.size();
-    std::vector<std::map<int, std::pair<int, int>>> inv(n);
-    for(int v = 1; v < n; v++){
-        for (const auto& [u, c]: adj[v]){
-            inv[u][v] = c;
-        }
-    }
-    return inv;
-};
 
 
 bool BFS(int s, int t, const std::vector<std::map<int, std::pair<int, int>>>& adj, std::vector<int>& level)
@@ -58,17 +47,11 @@ bool BFS(int s, int t, const std::vector<std::map<int, std::pair<int, int>>>& ad
     return level[t] < 0 ? false : true;
 }
 
-
-
-
 int DinicMaxflow(int s, int t, std::vector<std::map<int, std::pair<int, int>>> adj, bool optim)
 {
 
     int n = adj.size(); //the number of nodes
     addRevEdges(adj);
-    // GraphManager* g = new  GraphManager(n-1);
-    // ST_Tree* tree = new ST_Tree(false, n-1, 0);
-    // std::vector<std::map<int, std::pair<int, int>>> inv = adj_inv(adj);
     // Corner case
     if (s == t)
         return -1;
@@ -81,14 +64,9 @@ int DinicMaxflow(int s, int t, std::vector<std::map<int, std::pair<int, int>>> a
     while (BFS(s, t, adj, level) == true) {
         // store how many edges are visited
         // from V { 0 to V }
-        std::vector<int> start (n+1, 0);
+        std::vector<int> start (n, 0);
  
         // while flow is not zero in graph from S to D
-        // while (int flow = sendFlow(s, INT_MAX, t, start)) {
- 
-        //     // Add path flow to overall flow
-        //     total += flow;
-        // }
         total += blockingPaths(s, t, adj, start, level, optim, 0);       
     }
  
@@ -102,10 +80,8 @@ int blockingPaths(int s, int t,
 std::vector<std::map<int, std::pair<int, int>>>& adj,
 std::vector<int>& start, std::vector<int>& level, bool optim, int debug) {
     int n = adj.size(); //the number of nodes
-    // addRevEdges(adj);
     GraphManager* g = new  GraphManager(n-1);
-    ST_Tree* tree = new ST_Tree(optim, n-1, 5);
-    // std::vector<std::map<int, std::pair<int, int>>> inv = adj_inv(adj);
+    ST_Tree* tree = new ST_Tree(optim, n-1, 0);
     std::map<int, std::vector<int>> children;
     int flow = 0;
 
@@ -117,7 +93,7 @@ std::vector<int>& start, std::vector<int>& level, bool optim, int debug) {
             tree->update(s, -c);
             flow += c;
             if (debug) g->displayCombinedGraph(tree->getAllEdges(), tree->getAllDashEdges(), "flow", 0);
-            while(tree->parent(v) != -1){
+            while(tree->parent(s) != -1){
                 v = tree->mincost(s);
                 if (tree->cost(v) == 0)
                 {
@@ -144,15 +120,13 @@ std::vector<int>& start, std::vector<int>& level, bool optim, int debug) {
                 if (level[e.first] == level[v]+1 && e.second.second < e.second.first)
                 {
                     w = e.first;
-                    c = e.second.first;
+                    c = e.second.first - e.second.second;
                     break;
                 }
             }
 
             if (w != -1)
             {
-                // adj[v].erase(w);
-                // inv[w].erase(v);
                 tree->link(v, w, c);
                 children[w].push_back(v);
                 if (debug) g->displayCombinedGraph(tree->getAllEdges(), tree->getAllDashEdges(), "flow", 0);
@@ -181,6 +155,7 @@ std::vector<int>& start, std::vector<int>& level, bool optim, int debug) {
                         adj[v][u].second -= change;
                         tree->cut(u);
                     }
+                    children[v].clear();
                     if (debug) g->displayCombinedGraph(tree->getAllEdges(), tree->getAllDashEdges(), "flow", 0);
                 }
             }

@@ -15,7 +15,7 @@ using namespace std;
 
 
 std::vector<std::map<int, std::pair<int, int>>> generateRandomGraph(int numNodes, int maxWeight) {
-    std::vector<std::map<int, std::pair<int, int>>> graph(numNodes);
+    std::vector<std::map<int, std::pair<int, int>>> graph (numNodes);
     // srand(time(0));
     srand(3);
     for (int i = 1; i < numNodes; ++i) {
@@ -27,16 +27,6 @@ std::vector<std::map<int, std::pair<int, int>>> generateRandomGraph(int numNodes
             }
         }
     }
-
-    //printing graph
-    // for (int i = 0; i < numNodes; i++){
-    //     for (int j = 0; j < numNodes; ++j){
-    //         if (i!=j){
-    //         cout << "between " << i << " and " << j << " " << graph[i][j] << endl;
-    //         }
-    //     }
-    // }
-
     return graph;
 };
 
