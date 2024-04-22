@@ -34,7 +34,11 @@ int main(){
     int t = 6;
     int flow = DinicMaxflow(s, t, adj);
     int flow2 = fordFulkerson(adj, s, t);
+    auto timeByDTstart = std::chrono::high_resolution_clock::now();
     std::cout << "The maximum flow in dt is: " << flow << std::endl;
+    auto timeByDTend = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<float> duration2 = timeByDTend - timeByDTstart;
+    std::cout << "Time taken by dt: " << duration2.count() << " seconds" << std::endl;
     std::cout << "The maximum flow in ff is: " << flow2 << std::endl;
     return 0;
 

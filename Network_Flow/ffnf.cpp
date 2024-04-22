@@ -2,9 +2,9 @@
 #include "ffnf.hpp"
 
 
-int fordFulkerson(std::vector<std::map<int, std::pair<int, int>>>& graph, int source, int sink) {
+int fordFulkerson(std::vector<std::map<int, std::pair<int, int>>> graph, int source, int sink) {
     unordered_map<int, int> parent;
-    for (int i = 1; i < graph.size() + 1; i++){
+    for (int i = 1; i < graph.size(); i++){
         parent[i] = -1;
     }
     int maxFlow = 0;

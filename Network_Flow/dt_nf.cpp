@@ -101,7 +101,7 @@ std::vector<int>& start, std::vector<int>& level, bool optim) {
     int n = adj.size(); //the number of nodes
     // addRevEdges(adj);
     GraphManager* g = new  GraphManager(n-1);
-    ST_Tree* tree = new ST_Tree(optim, n-1, 0);
+    ST_Tree* tree = new ST_Tree(optim, n-1, 5);
     // std::vector<std::map<int, std::pair<int, int>>> inv = adj_inv(adj);
     std::map<int, std::vector<int>> children;
     int flow = 0;

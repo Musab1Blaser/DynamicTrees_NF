@@ -402,7 +402,7 @@ void ST_Tree::rotate(ST_Node* v) // rotate a node (representing an edge) upwards
         v->wt = u->wt;
         u->wt = u->bleft->wt + u->bright->wt;
     }
-    if (debug_mode)
+    if (debug_mode == 1)
     {
         displayInternalGraph();
         std::cout << "Rotated " << getEdge(v).first << "-" << getEdge(v).second << " | graph num " << representation_number << std::endl;
@@ -508,7 +508,7 @@ ST_Node* ST_Tree::concatenate(ST_Node* p, ST_Node* q, double x) // Connect two p
         }
     }
 
-    if (debug_mode)
+    if (debug_mode == 1 )
     {
         std::cout << "concatenated " << conc_paths[0] << "-" << conc_paths[1] << " with " << conc_paths[2] << "-" << conc_paths[3] << " | graph num : " << representation_number+1 << std::endl;
         displayInternalGraph();
@@ -615,7 +615,7 @@ std::tuple<ST_Node*, ST_Node*, double, double> ST_Tree::split(int v) // Break a 
         }
     }
     
-    if (debug_mode)
+    if (debug_mode == 1)
     {
         displayInternalGraph();
         std::cout << "Split " << v << " completed in " << representation_number << std::endl;
@@ -644,7 +644,7 @@ ST_Node* ST_Tree::splice(ST_Node* p) // Extend current bold path upwards by conv
     p = concatenate(p, path(v), dcost[tail(p)]); // connect me to the node above me
     if (r) // if more nodes on way to root
     {
-        if (debug_mode)
+        if (debug_mode ==1)
         {
             std::cout << "Splice " << getEdge(p).first << "-" << getEdge(p).second << " completed in " << representation_number+1 << std::endl;
         }
@@ -652,7 +652,7 @@ ST_Node* ST_Tree::splice(ST_Node* p) // Extend current bold path upwards by conv
     }
     else // no path to root
     {
-        if (debug_mode)
+        if (debug_mode ==1)
         {
             std::cout << "Splice " << getEdge(p).first << "-" << getEdge(p).second << " completed in " << representation_number << std::endl;
         }
@@ -682,7 +682,7 @@ ST_Node* ST_Tree::expose(int v) // Create bold path from this node to root of tr
     while (dparent[tail(p)] != -1)
         p = splice(p);
     
-    if (debug_mode)
+    if (debug_mode == 1)
     {
         std::cout << "exposed " << v << "| graph num : " << representation_number+1 << std::endl;
         displayInternalGraph();
@@ -794,15 +794,15 @@ void ST_Tree::evert(int v){ // Make v the root of the tree
 std::vector<std::vector<int>> ST_Tree::getAllEdges(){
     std::vector<std::vector<int>> edges;
     std::vector<std::vector<int>> graphs = getAllGraphs();
-    std::cout << "Internal Paths:\n";
+    // std::cout << "Internal Paths:\n";
     for (std::vector<int> graph : graphs){
-        std::cout << graph[0];
+        // std::cout << graph[0];
         for (int i = 0; i < graph.size() - 1; i++){
-            std::cout << " " << graph[i+1];
+            // std::cout << " " << graph[i+1];
             std::vector<int> edge = {graph[i], graph[i+1], (int) cost(graph[i+1])};
             edges.push_back(edge);
         }
-        std::cout << std::endl;
+        // std::cout << std::endl;
     }
     return edges;
 };

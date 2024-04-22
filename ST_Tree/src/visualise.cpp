@@ -32,19 +32,3 @@ void GraphManager::displayCombinedGraph(std::vector<std::vector<int>> bold_edges
         system(command.c_str());
     }
 }
-
-
-// int main() {
-//     // Create an instance of the GraphManager
-//     GraphManager graph_manager(7);
-
-//     std::vector<std::pair<int, int>> bold_edges = {{0, 1}, {1, 2}, {2, 3}, {4, 5}, {5, 6}};
-//     std::vector<std::pair<int, int>> dashed_edges = {{0, 4}};
-
-
-
-//     // Generate and display the combined graph
-//     graph_manager.displayCombinedGraph(bold_edges, dashed_edges);
-
-//     return 0;
-// }
