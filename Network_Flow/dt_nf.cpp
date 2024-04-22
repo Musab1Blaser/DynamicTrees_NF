@@ -1,11 +1,14 @@
 #include "dt_nf.hpp"
 
 void addRevEdges(std::vector<std::map<int, std::pair<int, int>>>& adj){
-    int n = adj.size();
+    int n = adj.size() - 1;
+    // std::cout << n << std::endl;
     for (int v = 1; v < n; v++){
         for (const auto& [u, c]: adj[v]){
+            // printf("%i %i\n", u, v);
             if (adj[u].count(v) == 0){
                 adj[u][v] = {0, 0};
+                // printf("%i %i\n", u, v);
             }
         }
     }
@@ -114,7 +117,7 @@ std::vector<int>& start, std::vector<int>& level, bool optim, int debug) {
             tree->update(s, -c);
             flow += c;
             if (debug) g->displayCombinedGraph(tree->getAllEdges(), tree->getAllDashEdges(), "flow", 0);
-            while(true){
+            while(tree->parent(v) != -1){
                 v = tree->mincost(s);
                 if (tree->cost(v) == 0)
                 {
