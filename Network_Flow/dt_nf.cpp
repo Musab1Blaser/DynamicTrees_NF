@@ -135,15 +135,17 @@ std::vector<int>& start, std::vector<int>& level, bool optim, int debug) {
             {
                 if (v==s){
                     for (int i = 1; i < n; i++)
-                        if (tree->parent(i) != -1)
+                    {
+                        int j = tree->parent(i);
+                        if (j != -1)
                         {
-                            int j = tree->parent(i);
                             int change = (adj[i][j].first - tree->cost(i)) - adj[i][j].second; // change in flow
                             adj[i][j].second += change;
                             adj[j][i].second -= change;
                             tree->cut(i);
                             if (debug) g->displayCombinedGraph(tree->getAllEdges(), tree->getAllDashEdges(), "flow", 0);
                         }
+                    }
                     break;
                 }
                 else

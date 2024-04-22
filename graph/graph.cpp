@@ -16,12 +16,12 @@ using namespace std;
 
 std::vector<std::map<int, std::pair<int, int>>> generateRandomGraph(int numNodes, int maxWeight) {
     std::vector<std::map<int, std::pair<int, int>>> graph (numNodes);
-    // srand(time(0));
-    srand(3);
+    srand(time(0));
+    // srand(1);
     for (int i = 1; i < numNodes; ++i) {
-        for (int j = i+1; j < numNodes; ++j) {
+        for (int j = 1; j < numNodes; ++j) {
             int prob = rand() % 100;
-            if (i != j and prob<10) {
+            if (i != j and prob<30) {
                 int weight = rand() % maxWeight + 1; // random weight from 1 to maxWeight
                 graph[i][j] = {weight, 0};
             }
@@ -31,7 +31,7 @@ std::vector<std::map<int, std::pair<int, int>>> generateRandomGraph(int numNodes
 };
 
 int main() {
-    vector<int> numNodes = {10, 20, 30, 40, 50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000, 2000, 3000, 4000, 5000};
+    vector<int> numNodes = {10, 20, 30, 40, 50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000, 1500, 2000, 2500, 3000};
     std::ofstream outFile("duration.txt");
     std::ofstream outFile2("duration2.txt");
     std::ofstream outFile3("duration3.txt");
@@ -57,8 +57,8 @@ int main() {
         std::cout << numNodes[i]<<std::endl;
         if (maxFlow != maxFlow2 or maxFlow != maxFlow3){
             cout << "Error: max flow is not the same" << endl;
-            cout << "maxflow 1 "<< maxFlow << " - " << duration.count() <<" maxflow 2 "<<maxFlow2 << " - " << duration2.count()<<" maxflow 3 "<<maxFlow3 << " - " << duration3.count() << endl;
         }
+        cout << "maxflow 1 "<< maxFlow << " - " << duration.count() <<" maxflow 2 "<<maxFlow2 << " - " << duration2.count()<<" maxflow 3 "<<maxFlow3 << " - " << duration3.count() << endl;
         //cout << "max flow from source to sink: " << maxFlow << endl;
     }
     outFile.close();
