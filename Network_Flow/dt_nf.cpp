@@ -165,6 +165,7 @@ std::vector<int>& start, std::vector<int>& level) {
                             adj[j][i].second -= change;
                             tree->cut(i);
                         }
+                    break;
                 }
                 else
                 {
