@@ -2,9 +2,9 @@
 
  
 
-std::vector<std::map<int, int>> adj_inv(std::vector<std::map<int, int>> adj){
+std::vector<std::map<int, std::pair<int, int>>> adj_inv(std::vector<std::map<int, std::pair<int, int>>> adj){
     int n = adj.size();
-    std::vector<std::map<int, int>> inv(n);
+    std::vector<std::map<int, std::pair<int, int>>> inv(n);
     for(int v = 1; v < n; v++){
         for (const auto& [u, c]: adj[v]){
             inv[u][v] = c;
@@ -14,11 +14,11 @@ std::vector<std::map<int, int>> adj_inv(std::vector<std::map<int, int>> adj){
 };
 
 int dinicMaxFlow(int s, int t, 
-std::vector<std::map<int, int>> adj) {
+std::vector<std::map<int, std::pair<int, int>>> adj) {
     int n = adj.size(); //the number of nodes
     GraphManager* g = new  GraphManager(n-1);
     ST_Tree* tree = new ST_Tree(false, n-1, 0);
-    std::vector<std::map<int, int>> inv = adj_inv(adj);
+    std::vector<std::map<int, std::pair<int, int>>> inv = adj_inv(adj);
     int flow = 0;
 
     while (true){
@@ -42,12 +42,14 @@ std::vector<std::map<int, int>> adj) {
         {
             int w = -1;
             int c = -1;
+            int f = -1;
             for (const auto& [a, b] : adj[v])
             {
                 if (tree->root(a) != v)
                 {
                     w = a;
-                    c = b;
+                    c = b.first;
+                    f = b.second;
                     break;
                 }
             }
