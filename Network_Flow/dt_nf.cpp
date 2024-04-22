@@ -71,13 +71,6 @@ std::vector<std::map<int, int>> adj) {
             g->displayCombinedGraph(tree->getAllEdges(), tree->getAllDashEdges(), "flow", 0);
         }
     }
-    // for (int v = 1; v < n; v++){
-    //     if (v!=t){
-    //         if (t == tree->parent(v)){
-    //             flow+=adj[t][v]-tree->cost(v);
-    //         }
-    //     }
-    // }
     return flow;
 }
 
