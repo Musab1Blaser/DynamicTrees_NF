@@ -16,11 +16,11 @@ std::vector<std::map<int, int>> adj_inv(std::vector<std::map<int, int>> adj){
 int dinicMaxFlow(int s, int t, 
 std::vector<std::map<int, int>> adj) {
     int n = adj.size(); //the number of nodes
-    GraphManager* g = new  GraphManager(n);
+    GraphManager* g = new  GraphManager(n-1);
     ST_Tree* tree = new ST_Tree(false, n-1, 0);
     std::vector<std::map<int, int>> inv = adj_inv(adj);
-    std::vector<std::map<int, int>> adj_copy = adj_inv(inv);
     int flow = 0;
+
     while (true){
         int v = tree->root(s);
         if (v==t){
@@ -38,26 +38,11 @@ std::vector<std::map<int, int>> adj) {
                 g->displayCombinedGraph(tree->getAllEdges(), tree->getAllDashEdges(), "flow", 0);
             }
         }
-        else if (adj_copy[v].begin() == adj_copy[v].end()){
-            if (v==s){
-                break;
-            }
-            else{
-                for (const auto& [u, c]: inv[v]){
-                    if (v == tree->parent(u)){
-                        tree->cut(u);
-                        g->displayCombinedGraph(tree->getAllEdges(), tree->getAllDashEdges(), "flow", 0);
-                    }
-                    adj[u].erase(v);
-                }
-                inv[v].clear();
-            }
-        }
         else
         {
-            int w;
-            int c;
-            for (const auto& [a, b] : adj_copy[v])
+            int w = -1;
+            int c = -1;
+            for (const auto& [a, b] : adj[v])
             {
                 if (tree->root(a) != v)
                 {
@@ -66,11 +51,35 @@ std::vector<std::map<int, int>> adj) {
                     break;
                 }
             }
-            adj_copy[v].erase(w);
-            tree->link(v, w, c);
-            g->displayCombinedGraph(tree->getAllEdges(), tree->getAllDashEdges(), "flow", 0);
-        }
+
+            if (w != -1)
+            {
+                adj[v].erase(w);
+                // inv[w].erase(v);
+                tree->link(v, w, c);
+                g->displayCombinedGraph(tree->getAllEdges(), tree->getAllDashEdges(), "flow", 0);
+            }
+            else
+            {
+                if (v==s){
+                    break;
+                }
+                else
+                {
+                    for (const auto& [u, c]: inv[v]){
+                        if (v == tree->parent(u)){
+                            tree->cut(u);
+                            g->displayCombinedGraph(tree->getAllEdges(), tree->getAllDashEdges(), "flow", 0);
+                        }
+                        if (adj[u].count(v)) adj[u].erase(v);
+                    }
+                    inv[v].clear();
+                }
+            }
+        } 
     }
+    return flow;
+}
     // for (int v = 1; v < n; v++){
     //     if (v!=t){
     //         if (t == tree->parent(v)){
@@ -78,7 +87,4 @@ std::vector<std::map<int, int>> adj) {
     //         }
     //     }
     // }
-    return flow;
-}
-
 
