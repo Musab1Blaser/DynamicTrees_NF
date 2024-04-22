@@ -23,9 +23,8 @@ std::vector<std::map<int, std::pair<int, int>>> adj_inv(const std::vector<std::m
 };
 
 
-bool BFS(int s, int t, const std::vector<std::map<int, std::pair<int, int>>>& adj)
+bool BFS(int s, int t, const std::vector<std::map<int, std::pair<int, int>>>& adj, std::vector<int>& level)
 {
-    std::vector<int> level;
     for (int i = 1; i < adj.size(); i++)
         level[i] = -1;
  
@@ -64,9 +63,9 @@ int DinicMaxflow(int s, int t, std::vector<std::map<int, std::pair<int, int>>> a
 
     int n = adj.size(); //the number of nodes
     addRevEdges(adj);
-    GraphManager* g = new  GraphManager(n-1);
-    ST_Tree* tree = new ST_Tree(false, n-1, 0);
-    std::vector<std::map<int, std::pair<int, int>>> inv = adj_inv(adj);
+    // GraphManager* g = new  GraphManager(n-1);
+    // ST_Tree* tree = new ST_Tree(false, n-1, 0);
+    // std::vector<std::map<int, std::pair<int, int>>> inv = adj_inv(adj);
     // Corner case
     if (s == t)
         return -1;
@@ -75,20 +74,19 @@ int DinicMaxflow(int s, int t, std::vector<std::map<int, std::pair<int, int>>> a
  
     // Augment the flow while there is path
     // from source to sink
-    while (BFS(s, t, adj) == true) {
+    std::vector<int> level (n);
+    while (BFS(s, t, adj, level) == true) {
         // store how many edges are visited
         // from V { 0 to V }
-        int* start = new int[n + 1]{ 0 };
+        std::vector<int> start (n+1, 0);
  
         // while flow is not zero in graph from S to D
-        while (int flow = sendFlow(s, INT_MAX, t, start)) {
+        // while (int flow = sendFlow(s, INT_MAX, t, start)) {
  
-            // Add path flow to overall flow
-            total += flow;
-        }
-       
-          // Remove allocated array
-          delete[] start;
+        //     // Add path flow to overall flow
+        //     total += flow;
+        // }
+        total += blockingPaths(s, t, adj, start, level);       
     }
  
     // return maximum flow
@@ -97,13 +95,15 @@ int DinicMaxflow(int s, int t, std::vector<std::map<int, std::pair<int, int>>> a
 
 
 
-int dinicMaxFlow(int s, int t, 
-std::vector<std::map<int, std::pair<int, int>>> adj) {
+int blockingPaths(int s, int t, 
+std::vector<std::map<int, std::pair<int, int>>>& adj,
+std::vector<int>& start, std::vector<int>& level) {
     int n = adj.size(); //the number of nodes
-    addRevEdges(adj);
+    // addRevEdges(adj);
     GraphManager* g = new  GraphManager(n-1);
     ST_Tree* tree = new ST_Tree(false, n-1, 0);
-    std::vector<std::map<int, std::pair<int, int>>> inv = adj_inv(adj);
+    // std::vector<std::map<int, std::pair<int, int>>> inv = adj_inv(adj);
+    std::map<int, std::vector<int>> children;
     int flow = 0;
 
     while (true){
@@ -117,7 +117,12 @@ std::vector<std::map<int, std::pair<int, int>>> adj) {
             while(true){
                 v = tree->mincost(s);
                 if (tree->cost(v) == 0)
+                {
+                    int change = adj[v][tree->parent(v)].first - adj[v][tree->parent(v)].second; // new flow
+                    adj[v][tree->parent(v)].second += change;
+                    adj[tree->parent(v)][v].second -= change;
                     tree->cut(v);
+                }
                 else
                     break;
                 g->displayCombinedGraph(tree->getAllEdges(), tree->getAllDashEdges(), "flow", 0);
@@ -127,40 +132,49 @@ std::vector<std::map<int, std::pair<int, int>>> adj) {
         {
             int w = -1;
             int c = -1;
-            int f = -1;
-            for (const auto& [a, b] : adj[v])
+            while (start[v] < adj[v].size())
             {
-                if (tree->root(a) != v)
+                auto it = adj[v].begin();
+                std::advance(it, start[v]++);
+                std::pair<const int, std::pair<int, int>>& e = *it;
+                if (level[e.first] == level[v]+1 && e.second.second < e.second.first)
                 {
-                    w = a;
-                    c = b.first;
-                    f = b.second;
+                    w = e.first;
+                    c = e.second.first;
                     break;
                 }
             }
 
             if (w != -1)
             {
-                adj[v].erase(w);
+                // adj[v].erase(w);
                 // inv[w].erase(v);
                 tree->link(v, w, c);
+                children[w].push_back(v);
                 g->displayCombinedGraph(tree->getAllEdges(), tree->getAllDashEdges(), "flow", 0);
             }
             else
             {
                 if (v==s){
-                    break;
+                    for (int i = 1; i < n; i++)
+                        if (tree->parent(i) != -1)
+                        {
+                            int j = tree->parent(i);
+                            int change = (adj[i][j].first - tree->cost(i)) - adj[i][j].second; // change in flow
+                            adj[i][j].second += change;
+                            adj[j][i].second -= change;
+                            tree->cut(i);
+                        }
                 }
                 else
                 {
-                    for (const auto& [u, c]: inv[v]){
-                        if (v == tree->parent(u)){
-                            tree->cut(u);
-                            g->displayCombinedGraph(tree->getAllEdges(), tree->getAllDashEdges(), "flow", 0);
-                        }
-                        if (adj[u].count(v)) adj[u].erase(v);
+                    for (int u : children[v])
+                    {
+                        int change = (adj[u][v].first - tree->cost(u)) - adj[u][v].second; // change in flow
+                        adj[u][v].second += change;
+                        adj[v][u].second -= change;
+                        tree->cut(u);
                     }
-                    inv[v].clear();
                 }
             }
         } 
