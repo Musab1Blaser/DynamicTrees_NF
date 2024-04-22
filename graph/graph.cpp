@@ -40,9 +40,10 @@ std::vector<std::map<int, std::pair<int, int>>> generateRandomGraph(int numNodes
 };
 
 int main() {
-    vector<int> numNodes = {50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000};
+    vector<int> numNodes = {50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000, 2000, 3000, 4000};
     std::ofstream outFile("duration.txt");
     std::ofstream outFile2("duration2.txt");
+    std::ofstream outFile3("duration3.txt");
     for (int i=0; i<numNodes.size(); i++){
         std::vector<std::map<int, std::pair<int, int>>> graph = generateRandomGraph(numNodes[i], int(numNodes[i]/10) ); //max weight = 50
         auto timeByFordstart = std::chrono::high_resolution_clock::now();
@@ -52,10 +53,16 @@ int main() {
         auto timeByDTstart = std::chrono::high_resolution_clock::now();
         int maxFlow2 = DinicMaxflow(0, numNodes[i]-1, graph);
         auto timeByDTend = std::chrono::high_resolution_clock::now();
+        auto timeByDTstart2 = std::chrono::high_resolution_clock::now();
+        int maxFlow3 = DinicMaxflow(0, numNodes[i]-1, graph, true);
+        auto timeByDTend2 = std::chrono::high_resolution_clock::now();
         std::chrono::duration<float> duration2 = timeByDTend - timeByDTstart;
         std::chrono::duration<float> duration = timeByFordend - timeByFordstart;
+        std::chrono::duration<float> duration3 = timeByDTend2 - timeByDTstart2;
         outFile << "x: " << numNodes[i] << ", y: " << duration.count() << " seconds\n";
         outFile2 << "x: " << numNodes[i] << ", y: " << duration2.count() << " seconds\n";
+        outFile3 << "x: " << numNodes[i] << ", y: " << duration3.count() << " seconds\n";
+        std::cout << numNodes[i]<<std::endl;
         //cout << "max flow from source to sink: " << maxFlow << endl;
     }
     outFile.close();

@@ -33,9 +33,9 @@ int main(){
     int s = 1;
     int t = 6;
     int flow = DinicMaxflow(s, t, adj);
-    // int flow2 = fordFulkerson(adj, s, t);
+    int flow2 = fordFulkerson(adj, s, t);
     std::cout << "The maximum flow in dt is: " << flow << std::endl;
-    // std::cout << "The maximum flow in ff is: " << flow2 << std::endl;
+    std::cout << "The maximum flow in ff is: " << flow2 << std::endl;
     return 0;
 
 }                                                                                                                                                                                               

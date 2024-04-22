@@ -58,7 +58,7 @@ bool BFS(int s, int t, const std::vector<std::map<int, std::pair<int, int>>>& ad
 
 
 
-int DinicMaxflow(int s, int t, std::vector<std::map<int, std::pair<int, int>>> adj)
+int DinicMaxflow(int s, int t, std::vector<std::map<int, std::pair<int, int>>> adj, bool optim)
 {
 
     int n = adj.size(); //the number of nodes
@@ -86,7 +86,7 @@ int DinicMaxflow(int s, int t, std::vector<std::map<int, std::pair<int, int>>> a
         //     // Add path flow to overall flow
         //     total += flow;
         // }
-        total += blockingPaths(s, t, adj, start, level);       
+        total += blockingPaths(s, t, adj, start, level, optim);       
     }
  
     // return maximum flow
@@ -97,11 +97,11 @@ int DinicMaxflow(int s, int t, std::vector<std::map<int, std::pair<int, int>>> a
 
 int blockingPaths(int s, int t, 
 std::vector<std::map<int, std::pair<int, int>>>& adj,
-std::vector<int>& start, std::vector<int>& level) {
+std::vector<int>& start, std::vector<int>& level, bool optim) {
     int n = adj.size(); //the number of nodes
     // addRevEdges(adj);
     GraphManager* g = new  GraphManager(n-1);
-    ST_Tree* tree = new ST_Tree(false, n-1, 0);
+    ST_Tree* tree = new ST_Tree(optim, n-1, 0);
     // std::vector<std::map<int, std::pair<int, int>>> inv = adj_inv(adj);
     std::map<int, std::vector<int>> children;
     int flow = 0;
