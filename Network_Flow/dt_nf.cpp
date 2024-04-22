@@ -86,7 +86,7 @@ int DinicMaxflow(int s, int t, std::vector<std::map<int, std::pair<int, int>>> a
         //     // Add path flow to overall flow
         //     total += flow;
         // }
-        total += blockingPaths(s, t, adj, start, level, optim);       
+        total += blockingPaths(s, t, adj, start, level, optim, 0);       
     }
  
     // return maximum flow
@@ -97,7 +97,7 @@ int DinicMaxflow(int s, int t, std::vector<std::map<int, std::pair<int, int>>> a
 
 int blockingPaths(int s, int t, 
 std::vector<std::map<int, std::pair<int, int>>>& adj,
-std::vector<int>& start, std::vector<int>& level, bool optim) {
+std::vector<int>& start, std::vector<int>& level, bool optim, int debug) {
     int n = adj.size(); //the number of nodes
     // addRevEdges(adj);
     GraphManager* g = new  GraphManager(n-1);
@@ -113,7 +113,7 @@ std::vector<int>& start, std::vector<int>& level, bool optim) {
             int c = tree->cost(v);
             tree->update(s, -c);
             flow += c;
-            g->displayCombinedGraph(tree->getAllEdges(), tree->getAllDashEdges(), "flow", 0);
+            if (debug) g->displayCombinedGraph(tree->getAllEdges(), tree->getAllDashEdges(), "flow", 0);
             while(true){
                 v = tree->mincost(s);
                 if (tree->cost(v) == 0)
@@ -122,11 +122,11 @@ std::vector<int>& start, std::vector<int>& level, bool optim) {
                     adj[v][tree->parent(v)].second += change;
                     adj[tree->parent(v)][v].second -= change;
                     tree->cut(v);
-
+                    if (debug) g->displayCombinedGraph(tree->getAllEdges(), tree->getAllDashEdges(), "flow", 0);
                 }
                 else
                     break;
-                g->displayCombinedGraph(tree->getAllEdges(), tree->getAllDashEdges(), "flow", 0);
+                if (debug) g->displayCombinedGraph(tree->getAllEdges(), tree->getAllDashEdges(), "flow", 0);
             }
         }
         else
@@ -152,7 +152,7 @@ std::vector<int>& start, std::vector<int>& level, bool optim) {
                 // inv[w].erase(v);
                 tree->link(v, w, c);
                 children[w].push_back(v);
-                g->displayCombinedGraph(tree->getAllEdges(), tree->getAllDashEdges(), "flow", 0);
+                if (debug) g->displayCombinedGraph(tree->getAllEdges(), tree->getAllDashEdges(), "flow", 0);
             }
             else
             {
@@ -165,6 +165,7 @@ std::vector<int>& start, std::vector<int>& level, bool optim) {
                             adj[i][j].second += change;
                             adj[j][i].second -= change;
                             tree->cut(i);
+                            if (debug) g->displayCombinedGraph(tree->getAllEdges(), tree->getAllDashEdges(), "flow", 0);
                         }
                     break;
                 }
@@ -177,6 +178,7 @@ std::vector<int>& start, std::vector<int>& level, bool optim) {
                         adj[v][u].second -= change;
                         tree->cut(u);
                     }
+                    if (debug) g->displayCombinedGraph(tree->getAllEdges(), tree->getAllDashEdges(), "flow", 0);
                 }
             }
         } 
