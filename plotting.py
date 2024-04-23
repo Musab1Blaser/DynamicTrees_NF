@@ -33,15 +33,15 @@ with open("duration3.txt", "r") as file:
 
 # Plotting the graph
 plt.plot(numNodes, durations1, label="Ford Fulkerson")
-plt.plot(numNodes, durations2, label="Dinic's Algorithm with Dynamic Trees Unoptimised")
 plt.plot(numNodes, durations3, label="Dinic's Algorithm with Dynamic Trees Optimised")
+plt.plot(numNodes, durations2, label="Dinic's Algorithm (No DT)")
 plt.legend()
 
 
 # Adding labels and title
 plt.xlabel("nodes")
-plt.ylabel("time")
-plt.title("Ford Fulkerson vs Dinic's Algorithm with Dynamic Trees")
+plt.ylabel("time (s)")
+plt.title("Ford Fulkerson vs Dinic's Algorithm vs Dinic's with Dynamic Trees (30% edge probability)")
 
 # Displaying the plot
 plt.show()

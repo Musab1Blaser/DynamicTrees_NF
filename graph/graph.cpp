@@ -40,22 +40,23 @@ int main() {
         auto timeByFordstart = std::chrono::high_resolution_clock::now();
         //cout << timeByFordstart << endl;
         int maxFlow = fordFulkerson(graph, 1, numNodes[i]); //start to end
+        // int maxFlow = 0;
         auto timeByFordend = std::chrono::high_resolution_clock::now();
+        auto timeByDNstart = std::chrono::high_resolution_clock::now();
+        int maxFlow2 = DinicMaxflow(1, numNodes[i], graph);
+        auto timeByDNend = std::chrono::high_resolution_clock::now();
         auto timeByDTstart = std::chrono::high_resolution_clock::now();
-        int maxFlow2 = DinicMaxflow(1, numNodes[i], graph, false);
+        int maxFlow3 = DinicMaxflowDT(1, numNodes[i], graph, true);
         auto timeByDTend = std::chrono::high_resolution_clock::now();
-        auto timeByDTstart2 = std::chrono::high_resolution_clock::now();
-        int maxFlow3 = DinicMaxflow(1, numNodes[i], graph, true);
-        auto timeByDTend2 = std::chrono::high_resolution_clock::now();
         std::chrono::duration<float> duration = timeByFordend - timeByFordstart;
-        std::chrono::duration<float> duration2 = timeByDTend - timeByDTstart;
-        std::chrono::duration<float> duration3 = timeByDTend2 - timeByDTstart2;
+        std::chrono::duration<float> duration2 = timeByDNend - timeByDNstart;
+        std::chrono::duration<float> duration3 = timeByDTend - timeByDTstart;
         outFile << "x: " << numNodes[i] << ", y: " << duration.count() << " seconds\n";
         outFile2 << "x: " << numNodes[i] << ", y: " << duration2.count() << " seconds\n";
         outFile3 << "x: " << numNodes[i] << ", y: " << duration3.count() << " seconds\n";
         // cout << "maxflow "<<maxFlow<<" "<<   (maxFlow == maxFlow2) << endl;
         std::cout << numNodes[i]<<std::endl;
-        if (maxFlow != maxFlow2 or maxFlow != maxFlow3){
+        if (maxFlow2 != maxFlow3){
             cout << "Error: max flow is not the same" << endl;
         }
         cout << "maxflow 1 "<< maxFlow << " - " << duration.count() <<" maxflow 2 "<<maxFlow2 << " - " << duration2.count()<<" maxflow 3 "<<maxFlow3 << " - " << duration3.count() << endl;

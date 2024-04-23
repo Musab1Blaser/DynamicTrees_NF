@@ -47,34 +47,69 @@ bool BFS(int s, int t, const std::vector<std::map<int, std::pair<int, int>>>& ad
     return level[t] < 0 ? false : true;
 }
 
-int DinicMaxflow(int s, int t, std::vector<std::map<int, std::pair<int, int>>> adj, bool optim)
+int sendFlow(int u, int flow, int t, std::vector<std::map<int, std::pair<int, int>>>& adj, std::vector<int>& level, std::vector<int>& start)
 {
+    // Sink reached
+    if (u == t)
+        return flow;
+ 
+    // Traverse all adjacent edges one -by - one.
+    for (; start[u] < adj[u].size(); start[u]++) {
+        // Pick next edge from adjacency list of u
+        std::pair<int, int>& e = adj[u][start[u]];
+ 
+        if (level[start[u]] == level[u] + 1 && e.second < e.first) {
+            // find minimum flow from u to t
+            int curr_flow = std::min(flow, e.first - e.second);
+ 
+            int temp_flow
+                = sendFlow(start[u], curr_flow, t, adj, level, start);
+ 
+            // flow is greater than zero
+            if (temp_flow > 0) {
+                // add flow  to current edge
+                e.second += temp_flow;
+ 
+                // subtract flow from reverse edge
+                // of current edge
+                adj[start[u]][u].second -= temp_flow;
+                return temp_flow;
+            }
+        }
+    }
+ 
+    return 0;
+}
 
+int DinicMaxflow(int s, int t, std::vector<std::map<int, std::pair<int, int>>> adj)
+{
     int n = adj.size(); //the number of nodes
-    addRevEdges(adj);
+
     // Corner case
     if (s == t)
         return -1;
  
     int total = 0; // Initialize result
+    std::vector<int> level (n);
  
     // Augment the flow while there is path
     // from source to sink
-    std::vector<int> level (n);
     while (BFS(s, t, adj, level) == true) {
         // store how many edges are visited
         // from V { 0 to V }
         std::vector<int> start (n, 0);
  
         // while flow is not zero in graph from S to D
-        total += blockingPaths(s, t, adj, start, level, optim, 0);       
+        while (int flow = sendFlow(s, INT32_MAX, t, adj, level, start)) {
+ 
+            // Add path flow to overall flow
+            total += flow;
+        }
     }
  
     // return maximum flow
     return total;
 }
-
-
 
 int blockingPaths(int s, int t, 
 std::vector<std::map<int, std::pair<int, int>>>& adj,
@@ -165,6 +200,37 @@ std::vector<int>& start, std::vector<int>& level, bool optim, int debug) {
     }
     return flow;
 }
+
+int DinicMaxflowDT(int s, int t, std::vector<std::map<int, std::pair<int, int>>> adj, bool optim)
+{
+
+    int n = adj.size(); //the number of nodes
+    addRevEdges(adj);
+    // Corner case
+    if (s == t)
+        return -1;
+ 
+    int total = 0; // Initialize result
+ 
+    // Augment the flow while there is path
+    // from source to sink
+    std::vector<int> level (n);
+    while (BFS(s, t, adj, level) == true) {
+        // store how many edges are visited
+        // from V { 0 to V }
+        std::vector<int> start (n, 0);
+ 
+        // while flow is not zero in graph from S to D
+        total += blockingPaths(s, t, adj, start, level, optim, 0);       
+    }
+ 
+    // return maximum flow
+    return total;
+}
+
+
+
+
     // for (int v = 1; v < n; v++){
     //     if (v!=t){
     //         if (t == tree->parent(v)){
