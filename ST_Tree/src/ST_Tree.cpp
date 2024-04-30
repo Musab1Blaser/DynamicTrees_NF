@@ -333,10 +333,12 @@ void ST_Tree::rotate(ST_Node* v) // rotate a node (representing an edge) upwards
             if (!u->bleft->external)
                 u->bleft->netmin -= u->netmin; // u acts as an intermediate between me and the smallest node
             if (!u->bright->external)
+            {
                 if (orig_v_nmin) // if my previous parent i.e. v, did not have the min value, so my parent must contain the minimum value - so the difference between me and my parent's min value increases by original netmin of v
                     u->bright->netmin += orig_v_nmin;
                 else // if my previous parent had min value then my new parent acts as an intermediate between me and the smallest node
                     u->bright->netmin -= u->netmin;
+            }
             
         }
         else // rotate right
@@ -381,10 +383,12 @@ void ST_Tree::rotate(ST_Node* v) // rotate a node (representing an edge) upwards
             if (!u->bright->external)
                 u->bright->netmin -= u->netmin; // u acts as an intermediate between me and the smallest node
             if (!u->bleft->external)
+            {
                 if (orig_v_nmin) // if my previous parent i.e. v, did not have the min value, so my parent must contain the minimum value - so the difference between me and my parent's min value increases by original netmin of v
                     u->bleft->netmin += orig_v_nmin;
                 else // if my previous parent had min value then my new parent acts as an intermediate between me and the smallest node
                     u->bleft->netmin -= u->netmin;
+            }
         }
 
         // update head and tail
@@ -559,7 +563,7 @@ std::tuple<ST_Node*, ST_Node*, double, double> ST_Tree::split(int v) // Break a 
             bool rev = get_reversal_state(vNode);
             while (vNode)
             {
-                if (vNode->bright == parList.back() ^ rev) // if i was a right child
+                if ((vNode->bright == parList.back()) ^ rev) // if i was a right child
                 {
                     if (pList.size())
                         pCosts.push(vNode->netcost + curMin);
@@ -797,7 +801,7 @@ std::vector<std::vector<int>> ST_Tree::getAllEdges(){
     // std::cout << "Internal Paths:\n";
     for (std::vector<int> graph : graphs){
         // std::cout << graph[0];
-        for (int i = 0; i < graph.size() - 1; i++){
+        for (int i = 0; i < (int) graph.size() - 1; i++){
             // std::cout << " " << graph[i+1];
             std::vector<int> edge = {graph[i], graph[i+1], (int) cost(graph[i+1])};
             edges.push_back(edge);

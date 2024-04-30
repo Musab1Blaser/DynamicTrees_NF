@@ -10,26 +10,25 @@ struct ST_Node // Nodes of underlying tree - can represent vertices or edges of 
 {
     bool external; // true/false
     int vertex_id; // vertex number
-    ST_Node* bparent;
-    ST_Node *bleft, *bright;
-    ST_Node *bhead, *btail; // bottom-most and top-most nodes in path 
+    ST_Node* bparent {nullptr};
+    ST_Node *bleft {nullptr}, *bright {nullptr};
+    ST_Node *bhead {nullptr}, *btail {nullptr}; // bottom-most and top-most nodes in path 
 
     // for optimization
-    int rank;
     int wt;
-    int level;
+    int rank;
     
     bool reversed; //to determine if reverse has occured
 
     // External node/vertex constructor
-    ST_Node(bool ext, int vert) : external{ext}, vertex_id{vert}, bparent{nullptr}, bhead{this}, bleft{this}, bright{this}, btail{this}, reversed{false}, wt{1}, rank{0} {}; 
+    ST_Node(bool ext, int vert) : external{ext}, vertex_id{vert}, bparent{nullptr}, bleft{this}, bright{this}, bhead{this},  btail{this}, wt{1}, rank{0}, reversed{false} {}; 
 
     // to determine cost of node + min edge
     double netmin; 
     double netcost;
 
     // Internal node/edge constructor
-    ST_Node (bool ext, ST_Node* par, bool rev, double netmi, double netcst) : external{ext}, vertex_id{-1}, bparent{par}, reversed{rev}, netmin{netmi}, netcost{netcst}, rank{-1} {};
+    ST_Node (bool ext, ST_Node* par, bool rev, double netmi, double netcst) : external{ext}, vertex_id{-1}, bparent{par}, rank{-1}, reversed{rev}, netmin{netmi}, netcost{netcst} {};
 };
 
 class ST_Tree

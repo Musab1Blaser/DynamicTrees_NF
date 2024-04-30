@@ -6,7 +6,7 @@
 
 int main()
 {
-    std::vector<int> test_values = {10, 100, 1000, 10000};
+    std::vector<int> test_values = {10, 100, 500, 1000, 2000, 4000, 6000, 8000, 10000};
     for (int nodes : test_values)
     {
         ST_Tree ST = ST_Tree(false, nodes, 0);
