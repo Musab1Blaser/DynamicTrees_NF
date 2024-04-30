@@ -37,7 +37,7 @@ Fourth number represents whether to use sample graph or no, 0 - no sample graph,
         std::cin >> nodes;
     }
 
-    ST_Tree ST = ST_Tree(false, nodes, std::stoi(argv[3])); // Initialise optimized ST-Tree with a specified number of nodes, numbered as: 1, 2, ..., nodes
+    ST_Tree ST = ST_Tree(true, nodes, std::stoi(argv[3])); // Initialise optimized ST-Tree with a specified number of nodes, numbered as: 1, 2, ..., nodes
     GraphManager graph_manager(nodes);
     int op_num = 0;
 
