@@ -17,7 +17,7 @@ void addRevEdges(std::vector<std::map<int, std::pair<int, int>>>& adj){
 
 bool BFS(int s, int t, const std::vector<std::map<int, std::pair<int, int>>>& adj, std::vector<int>& level)
 {
-    for (int i = 1; i < adj.size(); i++)
+    for (int i = 1; i < (int) adj.size(); i++)
         level[i] = -1;
  
     level[s] = 0; // Level of source vertex
@@ -54,7 +54,7 @@ int sendFlow(int u, int flow, int t, std::vector<std::map<int, std::pair<int, in
         return flow;
  
     // Traverse all adjacent edges one -by - one.
-    for (; start[u] < adj[u].size(); start[u]++) {
+    for (; start[u] < (int) adj[u].size(); start[u]++) {
         // Pick next edge from adjacency list of u
         std::pair<int, int>& e = adj[u][start[u]];
  
@@ -147,7 +147,7 @@ std::vector<int>& start, std::vector<int>& level, bool optim, int debug) {
         {
             int w = -1;
             int c = -1;
-            while (start[v] < adj[v].size())
+            while (start[v] < (int) adj[v].size())
             {
                 auto it = adj[v].begin();
                 std::advance(it, start[v]++);

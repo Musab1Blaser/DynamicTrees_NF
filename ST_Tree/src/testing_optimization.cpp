@@ -3,10 +3,13 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <fstream>
 
 int main()
 {
-    std::vector<int> test_values = {10, 100, 500, 1000, 2000, 4000, 6000, 8000, 10000};
+    std::ofstream outFile("opt_test_dur0.txt");
+    std::ofstream outFile2("opt_test_dur1.txt");
+    std::vector<int> test_values = {10, 20, 40, 100, 200, 250, 350, 450, 500};
     for (int nodes : test_values)
     {
         ST_Tree ST = ST_Tree(false, nodes, 0);
@@ -31,5 +34,8 @@ int main()
         std::cout << "input size: " << nodes << std::endl;
         std::cout << "default time: " << duration1.count() << std::endl;
         std::cout << "optimized time: " << duration2.count() << std::endl;
+
+        outFile << "x: " << nodes << ", y: " << duration1.count() << " seconds\n";
+        outFile2 << "x: " << nodes << ", y: " << duration2.count() << " seconds\n";
     }
 }

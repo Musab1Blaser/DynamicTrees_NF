@@ -4,7 +4,7 @@
 
 int fordFulkerson(std::vector<std::map<int, std::pair<int, int>>> graph, int source, int sink) {
     unordered_map<int, int> parent;
-    for (int i = 1; i < graph.size(); i++){
+    for (int i = 1; i < (int) graph.size(); i++){
         parent[i] = -1;
     }
     int maxFlow = 0;
