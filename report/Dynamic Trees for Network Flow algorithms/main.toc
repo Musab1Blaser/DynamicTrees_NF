@@ -1,0 +1,8 @@
+\contentsline {section}{\numberline {1}Abstract}{3}{section.1}%
+\contentsline {section}{\numberline {2}Intro}{4}{section.2}%
+\contentsline {section}{\numberline {3}Understanding the Data Structure}{5}{section.3}%
+\contentsline {section}{\numberline {4}Testing our Implementation}{13}{section.4}%
+\contentsline {section}{\numberline {5}Understanding Network Flow}{19}{section.5}%
+\contentsline {section}{\numberline {6}Analysis}{20}{section.6}%
+\contentsline {section}{\numberline {7}Conclusion}{23}{section.7}%
+\contentsline {section}{\numberline {8}Appendix}{24}{section.8}%

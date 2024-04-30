@@ -1,0 +1,17 @@
+\begin{thebibliography}{1}
+
+\bibitem{DynamicTrees}
+D.~D. Sleator and R.~E. Tarjan, ``A data structure for dynamic trees,'' {\em
+  Journal of Computer and System Sciences}, vol.~26, no.~3, 1983.
+
+\bibitem{BiasedSTrees}
+S.~W. Bent, D.~D. Sleator, and R.~E. Tarjan, ``Biased search trees,'' {\em SIAM
+  Journal on Computing}, 1985.
+
+\bibitem{gg_ff}
+GeeksforGeeks, ``Ford-fulkerson algorithm for maximum flow problem,'' 2023.
+
+\bibitem{gg_dinit}
+GeeksforGeeks, ``Dinic’s algorithm for maximum flow,'' 2023.
+
+\end{thebibliography}

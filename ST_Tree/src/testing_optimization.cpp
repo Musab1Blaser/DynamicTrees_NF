@@ -17,7 +17,7 @@ int main()
         
         auto timeByDefStart = std::chrono::high_resolution_clock::now();
         for (int i = 1; i < nodes; i++)
-            ST.link(i, i+1, 2);
+            ST.link(i, i+1, 1);
         for (int i = 1; i < nodes; i++)
             ST.cut(i);
         auto timeByDefEnd = std::chrono::high_resolution_clock::now();
@@ -25,7 +25,7 @@ int main()
         
         auto timeByOptStart = std::chrono::high_resolution_clock::now();
         for (int i = 1; i < nodes; i++)
-            ST_opt.link(i, i+1, 2);
+            ST_opt.link(i, i+1, 1);
         for (int i = 1; i < nodes; i++)
             ST_opt.cut(i);
         auto timeByOptEnd = std::chrono::high_resolution_clock::now();

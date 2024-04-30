@@ -43,12 +43,14 @@ with open("duration4.txt", "r") as file:
         # numNodes.append(int(data[0].split(": ")[1]))
         durations4.append(float(data[1].split(": ")[1].split()[0]))
 
+plt.rcParams['font.size'] = 22
+lw = 6
 
 # Plotting the graph
-plt.plot(numNodes, durations1, label="Ford Fulkerson", linestyle='dotted')
-plt.plot(numNodes, durations2, label="Dinit's Algorithm (No DT)", linestyle='dashdot')
-plt.plot(numNodes, durations3, label="Dinit's Algorithm (DT)", linestyle="solid")
-plt.plot(numNodes, durations4, label="Dinit's Algorithm (DT Optimized)", linestyle="dashed")
+plt.plot(numNodes, durations1, label="Ford Fulkerson", linestyle='dotted', linewidth=lw)
+plt.plot(numNodes, durations2, label="Dinit's Algorithm (No DT)", linestyle='dashdot', linewidth=lw)
+plt.plot(numNodes, durations3, label="Dinit's Algorithm (DT)", linestyle="solid", linewidth=lw)
+plt.plot(numNodes, durations4, label="Dinit's Algorithm (DT Optimized)", linestyle="dashed", linewidth=lw)
 plt.legend()
 
 
