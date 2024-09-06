@@ -24,8 +24,8 @@ struct ST_Node // Nodes of underlying tree - can represent vertices or edges of 
     ST_Node(bool ext, int vert) : external{ext}, vertex_id{vert}, bparent{nullptr}, bleft{this}, bright{this}, bhead{this},  btail{this}, wt{1}, rank{0}, reversed{false} {}; 
 
     // to determine cost of node + min edge
-    double netmin; 
-    double netcost;
+    double netmin = 0; 
+    double netcost = 0;
 
     // Internal node/edge constructor
     ST_Node (bool ext, ST_Node* par, bool rev, double netmi, double netcst) : external{ext}, vertex_id{-1}, bparent{par}, rank{-1}, reversed{rev}, netmin{netmi}, netcost{netcst} {};
