@@ -155,7 +155,13 @@ double ST_Tree::pmincost(ST_Node* p){ // Return the vertex closest to tail(p) su
     ST_Node* u = p;
 
     bool rev = get_reversal_state(u);
-    while (u->netcost !=0 || !((!rev && (u->bright->external || u->bright->netmin >0)) || (rev && (u->bleft->external || u->bleft->netmin > 0)))){
+    while (u->netcost !=0 ||
+             !((!rev &&
+                 (u->bright->external ||
+                  u->bright->netmin >0)) ||
+                   (rev &&
+                    (u->bleft->external ||
+                     u->bleft->netmin > 0)))){
         if (!rev){
             if (!u->bright->external && u->bright->netmin==0){
                 u = u->bright;
@@ -193,7 +199,7 @@ double ST_Tree::grosscost(ST_Node* v){ // compute grosscost of a node (weight of
 }
 
 double ST_Tree::grossmin(ST_Node* v){ // compute grossmin of a path (edge with least weight) represented by a node
-  int min_value = v->netmin;
+  double min_value = v->netmin;
 
   // traverse upwards till root
   while (v->bparent != nullptr) {
@@ -478,7 +484,7 @@ ST_Node* ST_Tree::concatenate(ST_Node* p, ST_Node* q, double x) // Connect two p
             
             ST_Node* y = (!p->reversed) ? p->bleft : p->bright;
             ST_Node* z = (p->reversed) ? p->bleft : p->bright;
-            int c = p->netcost + p->netmin;
+            double c = p->netcost + p->netmin;
             int r = p->rank;
 
             // delete node and rebuild it later to maintain cost and reversal state
@@ -496,7 +502,7 @@ ST_Node* ST_Tree::concatenate(ST_Node* p, ST_Node* q, double x) // Connect two p
             
             ST_Node* y = (!q->reversed) ? q->bleft : q->bright;
             ST_Node* z = (q->reversed) ? q->bleft : q->bright;
-            int c = q->netcost + q->netmin;
+            double c = q->netcost + q->netmin;
             int r = q->rank;
 
             // delete node and rebuild it later to maintain cost and reversal state
